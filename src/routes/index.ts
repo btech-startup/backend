@@ -10,6 +10,7 @@ import adminRoutes from './adminRoutes.js';
 import foodDonationRoutes from './foodDonationRoutes.js';
 import muhurthamRoutes from './muhurthamRoutes.js';
 import familyContributionRoutes from './familyContributionRoutes.js';
+import slotRoutes from './slotRoutes.js';
 import { sendSuccess } from '../utils/apiResponse.js';
 
 const apiRouter = Router();
@@ -21,7 +22,7 @@ apiRouter.get('/health', (req, res) => {
     database: 'PostgreSQL 16',
     edition: 'Full Indian Middle-Class Edition v2.0.0-PROD-SPEC',
     supportedActors: ['customer_app', 'vendor_app', 'admin_portal'],
-    features: ['reverse_budget_splitter_v2', 'split_family_upi_pool', 'annadanam_food_donation', 'panchangam_muhurtham_radar'],
+    features: ['reverse_budget_splitter_v2', 'split_family_upi_pool', 'annadanam_food_donation', 'panchangam_muhurtham_radar', 'bookmyshow_slot_engine'],
     timestamp: new Date(),
     version: '2.0.0-PROD-SPEC',
   });
@@ -38,5 +39,7 @@ apiRouter.use('/admin', adminRoutes);
 apiRouter.use('/annadanam', foodDonationRoutes);
 apiRouter.use('/muhurtham', muhurthamRoutes);
 apiRouter.use('/family-pool', familyContributionRoutes);
+apiRouter.use('/slots', slotRoutes);
 
 export default apiRouter;
+

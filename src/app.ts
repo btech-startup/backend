@@ -2,6 +2,8 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerDocument } from './config/swagger.js';
 import { env } from './config/env.js';
 import apiRouter from './routes/index.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -9,8 +11,13 @@ import { rateLimiter } from './middleware/rateLimiter.js';
 
 const app: Application = express();
 
-// Security HTTP headers
-app.use(helmet());
+// Security HTTP headers with Swagger UI compatibility
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
 // CORS configuration for Web and Mobile clients
 app.use(
@@ -30,6 +37,28 @@ if (env.NODE_ENV !== 'test') {
 // Request body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Swagger Interactive API Documentation UI
+app.use(
+  '/docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, {
+    customSiteTitle: 'EventWise REST API Docs',
+    customCss: '.swagger-ui .topbar { background-color: #1a1e24; }',
+  })
+);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Raw OpenAPI JSON endpoint
+app.get(['/docs.json', '/api-docs.json'], (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerDocument);
+});
+
+// Root redirect to Swagger Documentation
+app.get('/', (req, res) => {
+  res.redirect('/docs');
+});
 
 // Global rate limiting middleware
 app.use(rateLimiter(150, 15 * 60 * 1000));

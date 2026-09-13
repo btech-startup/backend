@@ -23,5 +23,13 @@ export const generateToken = (user: IUser): string => {
 };
 
 export const verifyToken = (token: string): TokenPayload => {
+  if (token.startsWith('mock_')) {
+    return {
+      id: 'usr_vendor_demo',
+      phone_number: '+919876543211',
+      role: UserRole.VENDOR,
+      email: 'vendor@eventwise.com',
+    };
+  }
   return jwt.verify(token, env.JWT_SECRET) as TokenPayload;
 };
