@@ -17,7 +17,16 @@ Production-Ready PostgreSQL 16 RESTful API Engine for **EventWise Platform**, en
 
 ---
 
-## 📁 Project Directory Structure
+## 📚 Interactive API Documentation (Swagger UI)
+
+When the backend is running, the interactive Swagger UI and OpenAPI documentation are available at:
+
+- **Interactive Swagger UI**: [http://localhost:5000/docs](http://localhost:5000/docs) (also mirrored at `/api-docs` and `/`)
+- **OpenAPI 3.0 Spec (JSON)**: [http://localhost:5000/docs.json](http://localhost:5000/docs.json)
+
+You can explore all 22+ endpoints, schemas, request payloads, and test authentication directly through the UI.
+
+---
 
 ```
 backend/
