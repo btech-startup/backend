@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Vendor {
+  id              String       @id @default(uuid())
+  phone           String       @unique
+  email           String?      @unique
+  ownerName       String?
+  businessName    String?
+  category        String?      // e.g., CATERING, PHOTOGRAPHY, DECORATION, VENUE, SOUND_DJ, MAKEUP_ARTIST, EVENT_PLANNER
+  bio             String?
+  experienceYears Int?
+  address         String?
+  city            String?
+  state           String?
+  pincode         String?
+  status          String       @default("PENDING_OTP") // PENDING_OTP, PENDING_KYC, VERIFIED, REJECTED, SUSPENDED
+  onboardingStep  String       @default("OTP_VERIFICATION") // OTP_VERIFICATION, KYC_VERIFICATION, PROFILE_COMPLETION, COMPLETED
+  profileImage    String?
+  portfolioUrls   String?      // JSON array of image/portfolio URLs
+  rating          Float?       @default(4.8)
+  reviewCount     Int?         @default(24)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  kyc             VendorKyc?
+  priceCards      PriceCard[]
+  deals           Deal[]
+}
+
+model OtpRecord {
+  id        String   @id @default(uuid())
+  phone     String
+  otp       String
+  purpose   String   @default("VENDOR_LOGIN") // VENDOR_LOGIN, AADHAAR_VERIFY
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([phone, purpose])
+}
+
+model VendorKyc {
+  id                String    @id @default(uuid())
+  vendorId          String    @unique
+  vendor            Vendor    @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  
+  // Aadhaar Details
+  aadhaarNumber     String?   // Masked e.g. "XXXXXXXX1234"
+  aadhaarName       String?
+  aadhaarVerified   Boolean   @default(false)
+  aadhaarVerifiedAt DateTime?
+
+  // PAN Details
+  panNumber         String?   // e.g. "ABCDE1234F"
+  panHolderName     String?
+  panVerified       Boolean   @default(false)
+  panVerifiedAt     DateTime?
+
+  // Bank Details
+  bankAccountNumber String?   // Masked e.g. "XXXXXX7890"
+  bankIfsc          String?   // e.g. "HDFC0001234"
+  bankAccountName   String?
+  bankName          String?
+  upiId             String?   // e.g. "vendor@okhdfcbank"
+  bankVerified      Boolean   @default(false)
+  bankVerifiedAt    DateTime?
+
+  isFullyVerified   Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model PriceCard {
+  id          String   @id @default(uuid())
+  vendorId    String
+  vendor      Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  title       String
+  category    String?
+  description String?
+  price       Float
+  pricingUnit String   @default("PER_EVENT") // PER_EVENT, PER_DAY, PER_HOUR, PER_PLATE, FIXED
+  inclusions  String?  // JSON string array of inclusions
+  terms       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  deals       Deal[]
+
+  @@index([vendorId])
+}
+
+model Deal {
+  id              String     @id @default(uuid())
+  vendorId        String
+  vendor          Vendor     @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  priceCardId     String?
+  priceCard       PriceCard? @relation(fields: [priceCardId], references: [id], onDelete: SetNull)
+  
+  clientName      String
+  clientPhone     String
+  clientEmail     String?
+  eventType       String     // Wedding, Reception, Birthday, Corporate, Sangeet, etc.
+  eventDate       String?
+  guestCount      Int?
+  
+  originalPrice   Float
+  offeredPrice    Float
+  agreedPrice     Float?
+  discountPercent Float?     @default(0)
+  
+  status          String     @default("NEGOTIATING") // INQUIRY, NEGOTIATING, DEAL_ACCEPTED, PAYMENT_PENDING, CONFIRMED, REJECTED
+  
+  // Chatbot conversation history: JSON string array of { sender: "USER" | "CHATBOT" | "VENDOR", message: string, timestamp: string }
+  chatHistory     String?    
+  
+  // Payment settlement breakdown & banking snapshot
+  paymentDetails  String?    
+  
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([vendorId])
+  @@index([clientPhone])
+}

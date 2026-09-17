@@ -1,51 +1,52 @@
-import express, { Application } from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
-import morgan from 'morgan';
-import { env } from './config/env.js';
-import apiRouter from './routes/index.js';
-import { errorHandler } from './middleware/errorHandler.js';
-import { rateLimiter } from './middleware/rateLimiter.js';
+import swaggerUi from 'swagger-ui-express';
+import apiRoutes from './routes';
+import { errorHandler } from './middlewares/error.middleware';
+import { swaggerSpec } from './docs/swagger';
 
 const app: Application = express();
 
-// Security HTTP headers
-app.use(helmet());
-
-// CORS configuration for Web and Mobile clients
-app.use(
-  cors({
-    origin: env.CORS_ORIGIN,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
-
-// HTTP request logger
-if (env.NODE_ENV !== 'test') {
-  app.use(morgan('dev'));
-}
-
-// Request body parsing
+// Global Middlewares
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Global rate limiting middleware
-app.use(rateLimiter(150, 15 * 60 * 1000));
+// Swagger Documentation Route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Mount main API v1 router
-app.use('/api/v1', apiRouter);
-
-// 404 Route handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Cannot ${req.method} ${req.originalUrl}`,
+// Base Landing Route
+app.get('/', (req: Request, res: Response) => {
+  res.json({
+    name: 'Event Management Vendor Backend API',
+    version: '1.0.0',
+    documentation: '/api-docs',
+    healthCheck: '/api/v1/health',
+    endpoints: {
+      auth: '/api/v1/auth',
+      kyc: '/api/v1/vendor/kyc',
+      profile: '/api/v1/vendor/profile',
+      priceCards: '/api/v1/vendor/price-card',
+      userVendors: '/api/v1/user/vendors',
+      userBanking: '/api/v1/user/vendors/:id/banking',
+      chatbotDeals: '/api/v1/user/deals/chatbot',
+      sampleVendors: '/api/v1/user/sample-vendors',
+    },
   });
 });
 
-// Centralized error handler
+// Mount Main API Routes
+app.use('/api/v1', apiRoutes);
+
+// 404 Handler for Unknown Routes
+app.use((req: Request, res: Response) => {
+  res.status(404).json({
+    success: false,
+    message: `Endpoint ${req.method} ${req.originalUrl} not found`,
+  });
+});
+
+// Global Error Handler
 app.use(errorHandler);
 
 export default app;
