@@ -10,6 +10,7 @@ import adminRoutes from './adminRoutes';
 import foodDonationRoutes from './foodDonationRoutes';
 import muhurthamRoutes from './muhurthamRoutes';
 import familyContributionRoutes from './familyContributionRoutes';
+import slotRoutes from './slotRoutes';
 import walletRoutes from './walletRoutes';
 import deliverableRoutes from './deliverableRoutes';
 import notificationRoutes from './notificationRoutes';
@@ -31,12 +32,14 @@ apiRouter.get('/health', (req, res) => {
       'split_family_upi_pool',
       'annadanam_food_donation',
       'panchangam_muhurtham_radar',
+      'bookmyshow_slot_engine',
       'wallet_system',
       'deliverables_tracking',
       'notification_engine',
       'location_tracking',
       'payment_integration',
     ],
+
     timestamp: new Date(),
     version: '3.0.0-PROD-SPEC',
   });
@@ -54,6 +57,7 @@ apiRouter.use('/admin', adminRoutes);
 apiRouter.use('/annadanam', foodDonationRoutes);
 apiRouter.use('/muhurtham', muhurthamRoutes);
 apiRouter.use('/family-pool', familyContributionRoutes);
+apiRouter.use('/slots', slotRoutes);
 
 // v3.0 New Feature Routes
 apiRouter.use('/wallet', walletRoutes);

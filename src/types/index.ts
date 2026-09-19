@@ -309,3 +309,58 @@ export interface INotification {
   is_read: boolean;
   created_at: Date;
 }
+
+// Slot and Venue types
+export type SlotType = 'morning' | 'evening' | 'full_day';
+export type SlotStatus = 'available' | 'cart_locked' | 'booked' | 'blocked_by_vendor';
+
+export interface IVenue {
+  id: string;
+  vendor_id: string;
+  name: string;
+  tagline: string;
+  city: string;
+  area: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  seated_capacity: number;
+  floating_capacity: number;
+  dining_capacity: number;
+  ac_rooms: number;
+  parking_capacity: number;
+  generator_backup_kva: number;
+  stage_dimensions: string;
+  base_slot_price: number;
+  images: string[];
+  features: string[];
+  rating: number;
+  synergy_vendors?: {
+    caterer_name: string;
+    caterer_id: string;
+    decorator_name: string;
+    decorator_id: string;
+    events_executed: number;
+  };
+}
+
+export interface IServiceSlotBooking {
+  id: string;
+  vendor_id: string;
+  venue_id?: string;
+  service_id?: string;
+  event_date: string;
+  slot_type: SlotType;
+  start_time: string;
+  end_time: string;
+  status: SlotStatus;
+  locked_by_user_id?: string;
+  locked_until?: string;
+  booking_id?: string;
+  host_name?: string;
+  guest_count?: number;
+  advance_amount?: number;
+  handshake_otp?: string;
+  created_at: Date;
+}
+

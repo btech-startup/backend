@@ -9,6 +9,7 @@ const startServer = async () => {
   const server = app.listen(env.PORT, () => {
     logger.info(`🚀 Server running in ${env.NODE_ENV} mode on port ${env.PORT}`);
     logger.info(`📍 API base URL: http://localhost:${env.PORT}/api/v1`);
+    logger.info(`📚 Swagger UI Docs: http://localhost:${env.PORT}/docs`);
     logger.info(`💓 Health check: http://localhost:${env.PORT}/api/v1/health`);
   });
 
