@@ -1,5 +1,5 @@
-import { query } from '../config/db.js';
-import { IEscrowLedger, LedgerEntryType } from '../types/index.js';
+import { query } from '../config/db';
+import { IEscrowLedger, LedgerEntryType } from '../types/index';
 
 export class EscrowLedgerRepository {
   static async addEntry(entry: {

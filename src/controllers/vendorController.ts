@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { VendorService } from '../services/vendorService.js';
-import { sendSuccess } from '../utils/apiResponse.js';
+import { VendorService } from '../services/vendorService';
+import { sendSuccess } from '../utils/apiResponse';
 
 export class VendorController {
   static async submitKYC(req: Request, res: Response, next: NextFunction): Promise<void> {

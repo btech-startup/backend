@@ -1,5 +1,5 @@
-import { query } from '../config/db.js';
-import { IBookingNegotiation, NegotiationSender, NegotiationStatus } from '../types/index.js';
+import { query } from '../config/db';
+import { IBookingNegotiation, NegotiationSender, NegotiationStatus } from '../types/index';
 
 export class NegotiationRepository {
   static async createCounterOffer(data: {

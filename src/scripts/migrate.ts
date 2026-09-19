@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import pkg from 'pg';
 const { Client } = pkg;
-import { env } from '../config/env.js';
+import { env } from '../config/env';
 
 async function runMigrations() {
   console.log('[Migration] Connecting to PostgreSQL database...');
@@ -12,13 +12,27 @@ async function runMigrations() {
     await client.connect();
     console.log('[Migration] Connection successful.');
 
-    const sqlFilePath = path.join(process.cwd(), 'migrations', '001_init_eventwise_schema.sql');
-    console.log(`[Migration] Reading migration file: ${sqlFilePath}`);
-    const sqlContent = fs.readFileSync(sqlFilePath, 'utf8');
+    const migrationFiles = [
+      '001_init_eventwise_schema.sql',
+      '002_eventwise_v2_upgrade.sql',
+      '003_wallet_deliverables_notifications.sql',
+    ];
 
-    console.log('[Migration] Executing DDL statements...');
-    await client.query(sqlContent);
-    console.log('✅ [Migration] EventWise PostgreSQL schema applied successfully.');
+    for (const fileName of migrationFiles) {
+      const sqlFilePath = path.join(process.cwd(), 'migrations', fileName);
+
+      if (!fs.existsSync(sqlFilePath)) {
+        console.warn(`[Migration] Skipping ${fileName} (file not found)`);
+        continue;
+      }
+
+      console.log(`[Migration] Executing: ${fileName}`);
+      const sqlContent = fs.readFileSync(sqlFilePath, 'utf8');
+      await client.query(sqlContent);
+      console.log(`✅ [Migration] ${fileName} applied successfully.`);
+    }
+
+    console.log('✅ [Migration] All EventWise PostgreSQL migrations completed.');
   } catch (error) {
     console.error('❌ [Migration Failed]:', error);
   } finally {

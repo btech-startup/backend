@@ -1,5 +1,5 @@
-import { query } from '../config/db.js';
-import { IMuhurthamDate } from '../types/index.js';
+import { query } from '../config/db';
+import { IMuhurthamDate } from '../types/index';
 
 export class MuhurthamRepository {
   static async getUpcomingAuspiciousDates(): Promise<IMuhurthamDate[]> {

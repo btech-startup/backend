@@ -211,3 +211,101 @@ export interface ApiResponse<T = any> {
   data?: T;
   error?: any;
 }
+
+// Wallet types
+export enum WalletTransactionType {
+  CREDIT = 'credit',
+  DEBIT = 'debit',
+  ESCROW_HOLD = 'escrow_hold',
+  ESCROW_RELEASE = 'escrow_release',
+  REFUND = 'refund',
+  WITHDRAWAL = 'withdrawal',
+}
+
+export enum WalletTransactionStatus {
+  PENDING = 'pending',
+  COMPLETED = 'completed',
+  FAILED = 'failed',
+  REVERSED = 'reversed',
+}
+
+export interface IWallet {
+  id: string;
+  user_id: string;
+  available_balance: number;
+  locked_balance: number;
+  total_earned: number;
+  total_withdrawn: number;
+  currency: string;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface IWalletTransaction {
+  id: string;
+  wallet_id: string;
+  booking_id?: string;
+  transaction_type: WalletTransactionType;
+  amount: number;
+  balance_after: number;
+  description: string;
+  reference_id: string;
+  status: WalletTransactionStatus;
+  created_at: Date;
+}
+
+// Deliverables types
+export enum DeliverableStatus {
+  PENDING = 'pending',
+  IN_PROGRESS = 'in_progress',
+  SUBMITTED = 'submitted',
+  APPROVED = 'approved',
+  REVISION_REQUESTED = 'revision_requested',
+  REJECTED = 'rejected',
+}
+
+export interface IDeliverable {
+  id: string;
+  booking_id: string;
+  vendor_id: string;
+  title: string;
+  description: string;
+  file_urls: string[];
+  status: DeliverableStatus;
+  submitted_at?: Date;
+  reviewed_at?: Date;
+  reviewer_notes?: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+// Notification types  
+export enum NotificationType {
+  BOOKING_CREATED = 'booking_created',
+  BOOKING_CONFIRMED = 'booking_confirmed',
+  BOOKING_CANCELLED = 'booking_cancelled',
+  PAYMENT_RECEIVED = 'payment_received',
+  MILESTONE_RELEASED = 'milestone_released',
+  CHECKIN_VERIFIED = 'checkin_verified',
+  DELIVERABLE_SUBMITTED = 'deliverable_submitted',
+  DELIVERABLE_APPROVED = 'deliverable_approved',
+  NEGOTIATION_RECEIVED = 'negotiation_received',
+  WALLET_CREDITED = 'wallet_credited',
+  WALLET_WITHDRAWN = 'wallet_withdrawn',
+  DISPUTE_RAISED = 'dispute_raised',
+  DISPUTE_RESOLVED = 'dispute_resolved',
+  SOS_DISPATCHED = 'sos_dispatched',
+  GENERAL = 'general',
+}
+
+export interface INotification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  data?: Record<string, any>;
+  is_read: boolean;
+  created_at: Date;
+}

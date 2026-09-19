@@ -1,5 +1,5 @@
-import { query } from '../config/db.js';
-import { IUser, UserRole } from '../types/index.js';
+import { query } from '../config/db';
+import { IUser, UserRole } from '../types/index';
 
 export class UserRepository {
   static async findByPhone(phone: string): Promise<IUser | null> {

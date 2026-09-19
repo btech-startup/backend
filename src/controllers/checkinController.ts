@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { CheckinService } from '../services/checkinService.js';
-import { sendSuccess } from '../utils/apiResponse.js';
+import { CheckinService } from '../services/checkinService';
+import { sendSuccess } from '../utils/apiResponse';
 
 export class CheckinController {
   static async verifyOTP(req: Request, res: Response, next: NextFunction): Promise<void> {

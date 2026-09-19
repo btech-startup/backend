@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { sendError } from '../utils/apiResponse.js';
+import { sendError } from '../utils/apiResponse';
 
 const requestsMap = new Map<string, { count: number; resetTime: number }>();
 

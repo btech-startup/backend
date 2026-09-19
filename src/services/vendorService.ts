@@ -1,6 +1,6 @@
-import { VendorRepository } from '../repositories/vendorRepository.js';
-import { BookingRepository } from '../repositories/bookingRepository.js';
-import { ServiceCategory } from '../types/index.js';
+import { VendorRepository } from '../repositories/vendorRepository';
+import { BookingRepository } from '../repositories/bookingRepository';
+import { ServiceCategory } from '../types/index';
 
 export class VendorService {
   static async submitKYC(

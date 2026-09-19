@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { FoodDonationRepository } from '../repositories/foodDonationRepository.js';
-import { sendSuccess } from '../utils/apiResponse.js';
+import { FoodDonationRepository } from '../repositories/foodDonationRepository';
+import { sendSuccess } from '../utils/apiResponse';
 
 export class FoodDonationController {
   static async dispatchPickup(req: Request, res: Response, next: NextFunction): Promise<void> {

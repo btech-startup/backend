@@ -2,10 +2,10 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import { env } from './config/env.js';
-import apiRouter from './routes/index.js';
-import { errorHandler } from './middleware/errorHandler.js';
-import { rateLimiter } from './middleware/rateLimiter.js';
+import { env } from './config/env';
+import apiRouter from './routes/index';
+import { errorHandler } from './middleware/errorHandler';
+import { rateLimiter } from './middleware/rateLimiter';
 
 const app: Application = express();
 

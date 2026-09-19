@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { CheckinController } from '../controllers/checkinController.js';
-import { authenticate } from '../middleware/authMiddleware.js';
-import { validateBody } from '../middleware/validateMiddleware.js';
+import { CheckinController } from '../controllers/checkinController';
+import { authenticate } from '../middleware/authMiddleware';
+import { validateBody } from '../middleware/validateMiddleware';
 
 const router = Router();
 

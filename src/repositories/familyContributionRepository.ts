@@ -1,5 +1,5 @@
-import { query } from '../config/db.js';
-import { IFamilyContribution } from '../types/index.js';
+import { query } from '../config/db';
+import { IFamilyContribution } from '../types/index';
 
 export class FamilyContributionRepository {
   static async createContribution(data: {

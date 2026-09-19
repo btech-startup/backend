@@ -1,5 +1,5 @@
-import { query } from '../config/db.js';
-import { IBooking, BookingStatus } from '../types/index.js';
+import { query } from '../config/db';
+import { IBooking, BookingStatus } from '../types/index';
 
 export class BookingRepository {
   static async create(bookingData: {

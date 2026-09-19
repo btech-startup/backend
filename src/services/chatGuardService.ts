@@ -1,5 +1,5 @@
-import { sanitizeChatMessage, ChatSanitizeResult } from '../utils/chatGuard.js';
-import { query } from '../config/db.js';
+import { sanitizeChatMessage, ChatSanitizeResult } from '../utils/chatGuard';
+import { query } from '../config/db';
 
 export class ChatGuardService {
   static async processMessage(

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { NegotiationService } from '../services/negotiationService.js';
-import { sendSuccess } from '../utils/apiResponse.js';
+import { NegotiationService } from '../services/negotiationService';
+import { sendSuccess } from '../utils/apiResponse';
 
 export class NegotiationController {
   static async propose(req: Request, res: Response, next: NextFunction): Promise<void> {

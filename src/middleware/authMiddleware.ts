@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken } from '../utils/jwt.js';
-import { sendError } from '../utils/apiResponse.js';
-import { UserRole } from '../types/index.js';
+import { verifyToken } from '../utils/jwt';
+import { sendError } from '../utils/apiResponse';
+import { UserRole } from '../types/index';
 
 export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
   try {

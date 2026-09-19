@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { AdminService } from '../services/adminService.js';
-import { sendSuccess } from '../utils/apiResponse.js';
+import { AdminService } from '../services/adminService';
+import { sendSuccess } from '../utils/apiResponse';
 
 export class AdminController {
   static async dispatchSOS(req: Request, res: Response, next: NextFunction): Promise<void> {

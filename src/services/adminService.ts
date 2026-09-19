@@ -1,7 +1,7 @@
-import { BookingRepository } from '../repositories/bookingRepository.js';
-import { DisputeRepository } from '../repositories/disputeRepository.js';
-import { FoodDonationRepository } from '../repositories/foodDonationRepository.js';
-import { query } from '../config/db.js';
+import { BookingRepository } from '../repositories/bookingRepository';
+import { DisputeRepository } from '../repositories/disputeRepository';
+import { FoodDonationRepository } from '../repositories/foodDonationRepository';
+import { query } from '../config/db';
 
 export class AdminService {
   /**

@@ -1,5 +1,5 @@
-import { NegotiationRepository } from '../repositories/negotiationRepository.js';
-import { NegotiationSender } from '../types/index.js';
+import { NegotiationRepository } from '../repositories/negotiationRepository';
+import { NegotiationSender } from '../types/index';
 
 export class NegotiationService {
   /**

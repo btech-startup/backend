@@ -1,5 +1,5 @@
-import { query } from '../config/db.js';
-import { IVendor, IVendorService, ServiceCategory } from '../types/index.js';
+import { query } from '../config/db';
+import { IVendor, IVendorService, ServiceCategory } from '../types/index';
 
 export class VendorRepository {
   static async findByUserId(userId: string): Promise<IVendor | null> {

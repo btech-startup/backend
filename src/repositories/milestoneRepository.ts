@@ -1,5 +1,5 @@
-import { query } from '../config/db.js';
-import { IBookingMilestone, MilestoneStage, MilestoneStatus } from '../types/index.js';
+import { query } from '../config/db';
+import { IBookingMilestone, MilestoneStage, MilestoneStatus } from '../types/index';
 
 export class MilestoneRepository {
   static async createMilestonesForBooking(

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { ChatGuardService } from '../services/chatGuardService.js';
-import { sendSuccess } from '../utils/apiResponse.js';
+import { ChatGuardService } from '../services/chatGuardService';
+import { sendSuccess } from '../utils/apiResponse';
 
 export class ChatController {
   static async sanitize(req: Request, res: Response, next: NextFunction): Promise<void> {

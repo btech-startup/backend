@@ -1,5 +1,5 @@
-import { query } from '../config/db.js';
-import { IVenueCheckin } from '../types/index.js';
+import { query } from '../config/db';
+import { IVenueCheckin } from '../types/index';
 
 export class CheckinRepository {
   static async createOrUpdateCheckin(data: {

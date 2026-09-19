@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
-import { env } from '../config/env.js';
-import { IUser, UserRole } from '../types/index.js';
+import { env } from '../config/env';
+import { IUser, UserRole } from '../types/index';
 
 export interface TokenPayload {
   id: string;

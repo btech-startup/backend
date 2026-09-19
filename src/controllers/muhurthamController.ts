@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { MuhurthamRepository } from '../repositories/muhurthamRepository.js';
-import { sendSuccess } from '../utils/apiResponse.js';
+import { MuhurthamRepository } from '../repositories/muhurthamRepository';
+import { sendSuccess } from '../utils/apiResponse';
 
 export class MuhurthamController {
   static async getUpcoming(req: Request, res: Response, next: NextFunction): Promise<void> {

@@ -1,9 +1,9 @@
-import { BookingRepository } from '../repositories/bookingRepository.js';
-import { MilestoneRepository } from '../repositories/milestoneRepository.js';
-import { CheckinRepository } from '../repositories/checkinRepository.js';
-import { EscrowLedgerRepository } from '../repositories/escrowLedgerRepository.js';
-import { calculateHaversineDistance } from '../utils/geofence.js';
-import { MilestoneStatus, LedgerEntryType, BookingStatus } from '../types/index.js';
+import { BookingRepository } from '../repositories/bookingRepository';
+import { MilestoneRepository } from '../repositories/milestoneRepository';
+import { CheckinRepository } from '../repositories/checkinRepository';
+import { EscrowLedgerRepository } from '../repositories/escrowLedgerRepository';
+import { calculateHaversineDistance } from '../utils/geofence';
+import { MilestoneStatus, LedgerEntryType, BookingStatus } from '../types/index';
 
 export class CheckinService {
   /**

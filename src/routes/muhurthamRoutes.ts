@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { MuhurthamController } from '../controllers/muhurthamController.js';
-import { authenticate, authorize } from '../middleware/authMiddleware.js';
-import { UserRole } from '../types/index.js';
+import { MuhurthamController } from '../controllers/muhurthamController';
+import { authenticate, authorize } from '../middleware/authMiddleware';
+import { UserRole } from '../types/index';
 
 const router = Router();
 

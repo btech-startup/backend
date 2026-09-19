@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { NegotiationController } from '../controllers/negotiationController.js';
-import { authenticate } from '../middleware/authMiddleware.js';
-import { validateBody } from '../middleware/validateMiddleware.js';
+import { NegotiationController } from '../controllers/negotiationController';
+import { authenticate } from '../middleware/authMiddleware';
+import { validateBody } from '../middleware/validateMiddleware';
 
 const router = Router();
 

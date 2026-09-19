@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { FamilyContributionRepository } from '../repositories/familyContributionRepository.js';
-import { sendSuccess } from '../utils/apiResponse.js';
+import { FamilyContributionRepository } from '../repositories/familyContributionRepository';
+import { sendSuccess } from '../utils/apiResponse';
 
 export class FamilyContributionController {
   static async inviteSponsor(req: Request, res: Response, next: NextFunction): Promise<void> {

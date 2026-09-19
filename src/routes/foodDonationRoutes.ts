@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { FoodDonationController } from '../controllers/foodDonationController.js';
-import { authenticate } from '../middleware/authMiddleware.js';
-import { validateBody } from '../middleware/validateMiddleware.js';
+import { FoodDonationController } from '../controllers/foodDonationController';
+import { authenticate } from '../middleware/authMiddleware';
+import { validateBody } from '../middleware/validateMiddleware';
 
 const router = Router();
 

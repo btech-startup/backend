@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { FamilyContributionController } from '../controllers/familyContributionController.js';
-import { authenticate } from '../middleware/authMiddleware.js';
-import { validateBody } from '../middleware/validateMiddleware.js';
+import { FamilyContributionController } from '../controllers/familyContributionController';
+import { authenticate } from '../middleware/authMiddleware';
+import { validateBody } from '../middleware/validateMiddleware';
 
 const router = Router();
 

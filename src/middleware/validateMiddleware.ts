@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { sendError } from '../utils/apiResponse.js';
+import { sendError } from '../utils/apiResponse';
 
 export const validateBody = (requiredFields: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {

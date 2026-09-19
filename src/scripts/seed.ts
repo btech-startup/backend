@@ -1,7 +1,7 @@
 import pkg from 'pg';
 const { Client } = pkg;
 import bcrypt from 'bcryptjs';
-import { env } from '../config/env.js';
+import { env } from '../config/env';
 
 async function seedDatabase() {
   console.log('[Seeder] Connecting to PostgreSQL database...');

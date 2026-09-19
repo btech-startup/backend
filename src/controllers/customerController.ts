@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { CustomerService } from '../services/customerService.js';
-import { sendSuccess } from '../utils/apiResponse.js';
-import { ServiceCategory } from '../types/index.js';
+import { CustomerService } from '../services/customerService';
+import { sendSuccess } from '../utils/apiResponse';
+import { ServiceCategory } from '../types/index';
 
 export class CustomerController {
   static async calculateBudgetSplit(req: Request, res: Response, next: NextFunction): Promise<void> {

@@ -1,5 +1,5 @@
-import { VendorRepository } from '../repositories/vendorRepository.js';
-import { ServiceCategory } from '../types/index.js';
+import { VendorRepository } from '../repositories/vendorRepository';
+import { ServiceCategory } from '../types/index';
 
 export class CustomerService {
   /**

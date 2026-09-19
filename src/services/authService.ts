@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
-import { UserRepository } from '../repositories/userRepository.js';
-import { IUser, UserRole } from '../types/index.js';
-import { generateToken } from '../utils/jwt.js';
+import { UserRepository } from '../repositories/userRepository';
+import { IUser, UserRole } from '../types/index';
+import { generateToken } from '../utils/jwt';
 
 export class AuthService {
   static async register(userData: {

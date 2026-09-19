@@ -1,7 +1,7 @@
 import pkg from 'pg';
 const { Pool } = pkg;
-import { env } from './env.js';
-import { logger } from '../utils/logger.js';
+import { env } from './env';
+import { logger } from '../utils/logger';
 
 export const pool = new Pool({
   connectionString: env.DATABASE_URL,

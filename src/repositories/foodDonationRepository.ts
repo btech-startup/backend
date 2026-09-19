@@ -1,5 +1,5 @@
-import { query } from '../config/db.js';
-import { IFoodDonationPickup } from '../types/index.js';
+import { query } from '../config/db';
+import { IFoodDonationPickup } from '../types/index';
 
 export class FoodDonationRepository {
   static async createPickup(data: {

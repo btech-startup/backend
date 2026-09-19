@@ -24,6 +24,7 @@
   "author": "EventWise Architecture Team",
   "license": "MIT",
   "dependencies": {
+    "@types/swagger-ui-express": "^4.1.8",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -31,7 +32,8 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
-    "pg": "^8.23.0"
+    "pg": "^8.23.0",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

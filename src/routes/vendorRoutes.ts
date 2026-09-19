@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { VendorController } from '../controllers/vendorController.js';
-import { authenticate, authorize } from '../middleware/authMiddleware.js';
-import { UserRole } from '../types/index.js';
-import { validateBody } from '../middleware/validateMiddleware.js';
+import { VendorController } from '../controllers/vendorController';
+import { authenticate, authorize } from '../middleware/authMiddleware';
+import { UserRole } from '../types/index';
+import { validateBody } from '../middleware/validateMiddleware';
 
 const router = Router();
 
