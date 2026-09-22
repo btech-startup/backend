@@ -52,6 +52,7 @@ To immediately test any API without manual setup, call \`GET /api/v1/user/sample
     },
     tags: [
       { name: 'User Experience & Directory', description: 'User-side vendor discovery, verified profiles, and banking details' },
+      { name: 'Vendor Calendar & Event Availability', description: 'Monthly calendar matrix, booked events, blocked maintenance dates, and date verification' },
       { name: 'Chatbot & Deal Negotiation', description: 'Interactive AI Chatbot for deal negotiations, quotes, and payment scheduling' },
       { name: 'Authentication', description: 'Vendor mobile registration and OTP verification' },
       { name: 'KYC Verification', description: 'Aadhaar, PAN, and Bank account compliance verification' },

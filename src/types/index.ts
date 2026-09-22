@@ -45,3 +45,33 @@ export interface ApiResponse<T = any> {
   data?: T;
   error?: string | any;
 }
+
+export enum CalendarSlotType {
+  FULL_DAY = 'FULL_DAY',
+  MORNING = 'MORNING',
+  EVENING = 'EVENING',
+}
+
+export enum CalendarStatus {
+  AVAILABLE = 'AVAILABLE',
+  BOOKED = 'BOOKED',
+  BLOCKED = 'BLOCKED',
+  TENTATIVE = 'TENTATIVE',
+}
+
+export interface CalendarDayStatus {
+  date: string; // YYYY-MM-DD
+  dayOfWeek: string; // Monday, Tuesday, etc.
+  isAvailable: boolean;
+  status: CalendarStatus;
+  slotType: CalendarSlotType;
+  event?: {
+    id?: string;
+    title?: string;
+    eventType?: string;
+    clientName?: string;
+    clientPhone?: string;
+    dealId?: string | null;
+    notes?: string | null;
+  } | null;
+}

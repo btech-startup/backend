@@ -32,6 +32,7 @@ model Vendor {
   kyc             VendorKyc?
   priceCards      PriceCard[]
   deals           Deal[]
+  calendarEntries VendorCalendar[]
 }
 
 model OtpRecord {
@@ -128,6 +129,35 @@ model Deal {
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 
+  calendarEntry   VendorCalendar?
+
   @@index([vendorId])
   @@index([clientPhone])
+}
+
+model VendorCalendar {
+  id          String   @id @default(uuid())
+  vendorId    String
+  vendor      Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  
+  date        String   // Format: YYYY-MM-DD (e.g. "2026-12-15")
+  endDate     String?  // Optional end date for multi-day events
+  status      String   @default("BOOKED") // "BOOKED", "BLOCKED", "TENTATIVE"
+  slotType    String   @default("FULL_DAY") // "FULL_DAY", "MORNING", "EVENING"
+  
+  title       String?  // e.g., "Aisha & Rohan Wedding", "Venue Renovation", "Private Event"
+  eventType   String?  // e.g., "Wedding", "Reception", "Sangeet", "Corporate", "Maintenance"
+  clientName  String?  // Client or organizer name
+  clientPhone String?  // Contact phone
+  
+  dealId      String?  @unique // Optional link to platform Deal
+  deal        Deal?    @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  
+  notes       String?  // Additional vendor notes
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([vendorId, date, slotType])
+  @@index([vendorId, date])
+  @@index([vendorId, status])
 }

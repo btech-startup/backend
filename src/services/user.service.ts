@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma';
 import { VendorStatus } from '../types';
+import { CalendarService } from './calendar.service';
 
 export interface GetVendorsFilterDto {
   category?: string;
@@ -110,6 +111,8 @@ export class UserService {
           hasChatbotDeal: true,
           acceptsOnlinePayments: !!v.kyc?.upiId,
           upiId: v.kyc?.upiId ?? null,
+          hasCalendar: true,
+          calendarEndpoint: `/api/v1/user/vendors/${v.id}/calendar`,
         },
       };
     });
@@ -195,6 +198,11 @@ export class UserService {
           instantDealEligibility: true,
           negotiationModes: ['PRICE_DISCOUNT', 'CUSTOM_INCLUSIONS', 'DATE_LOCKING'],
           endpoint: '/api/v1/user/deals/chatbot',
+        },
+        calendar: {
+          enabled: true,
+          endpoint: `/api/v1/user/vendors/${vendor.id}/calendar`,
+          verifyDateEndpoint: `/api/v1/user/vendors/${vendor.id}/calendar/verify-date`,
         },
       },
     };
@@ -299,6 +307,18 @@ export class UserService {
       chatbotReply = `Hello ${dto.clientName}! While a ${Math.round(requestedDiscountPercent)}% reduction is below the baseline for premium quality delivery, here is our best counter-offer: We can offer ₹${counterPrice.toLocaleString('en-IN')} (a solid 12% discount off standard ₹${basePrice.toLocaleString('en-IN')}) PLUS include complimentary premium upgrades for your ${dto.eventType}. Would this deal work for you?`;
     }
 
+    // Verify calendar date availability if eventDate provided
+    if (dto.eventDate) {
+      try {
+        const check = await CalendarService.verifyDateAvailability(vendor.id, dto.eventDate);
+        if (!check.isAvailable) {
+          chatbotReply += ` (Note: Our calendar indicates a prior booking on ${dto.eventDate}. Adjacent alternative dates: ${check.suggestedAvailableDates.slice(0, 3).join(', ')})`;
+        }
+      } catch {
+        // Fallback gracefully
+      }
+    }
+
     const advanceRequired = Math.round((agreedPrice || offeredPrice) * 0.3);
     const balanceRemaining = (agreedPrice || offeredPrice) - advanceRequired;
 
@@ -352,6 +372,11 @@ export class UserService {
         paymentDetails: JSON.stringify(paymentDetails),
       },
     });
+
+    // Sync deal to calendar if eventDate is present
+    if (deal.eventDate) {
+      await CalendarService.syncDealToCalendar(deal.id);
+    }
 
     return {
       dealId: deal.id,
@@ -467,6 +492,11 @@ export class UserService {
         paymentDetails: JSON.stringify(paymentDetails),
       },
     });
+
+    // Sync updated deal to calendar
+    if (deal.eventDate) {
+      await CalendarService.syncDealToCalendar(updated.id);
+    }
 
     return {
       dealId: updated.id,

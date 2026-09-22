@@ -12,7 +12,8 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
     "test:e2e": "tsx test/e2e-vendor-flow.ts",
-    "test:user": "tsx test/e2e-user-chatbot-flow.ts"
+    "test:user": "tsx test/e2e-user-chatbot-flow.ts",
+    "test:calendar": "tsx test/e2e-calendar-flow.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

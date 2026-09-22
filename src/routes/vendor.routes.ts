@@ -3,6 +3,10 @@ import {
   VendorController,
   updateVendorProfileSchema,
 } from '../controllers/vendor.controller';
+import {
+  CalendarController,
+  blockDatesSchema,
+} from '../controllers/calendar.controller';
 import { authenticateVendor } from '../middlewares/auth.middleware';
 import { validateRequest } from '../middlewares/validate.middleware';
 
@@ -102,5 +106,131 @@ router.put(
  *         description: Dashboard stats retrieved
  */
 router.get('/dashboard/stats', VendorController.getDashboardStats);
+
+/**
+ * @swagger
+ * /api/v1/vendor/calendar:
+ *   get:
+ *     summary: Get vendor's personal event schedule, bookings, and blocked dates
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [Vendor Calendar & Event Availability]
+ *     parameters:
+ *       - in: query
+ *         name: month
+ *         schema:
+ *           type: string
+ *         description: "Month in YYYY-MM format (e.g. 2026-12)"
+ *         example: "2026-12"
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *         example: "2026-12-01"
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *         example: "2026-12-31"
+ *     responses:
+ *       200:
+ *         description: Full vendor schedule with client details, deal links, and summary
+ */
+router.get('/calendar', CalendarController.getVendorCalendarProtected);
+
+/**
+ * @swagger
+ * /api/v1/vendor/calendar/block:
+ *   post:
+ *     summary: Block date(s) on calendar for personal leave, maintenance, or external bookings
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [Vendor Calendar & Event Availability]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [date]
+ *             properties:
+ *               date:
+ *                 type: string
+ *                 description: "Target start date (YYYY-MM-DD)"
+ *                 example: "2026-11-10"
+ *               endDate:
+ *                 type: string
+ *                 description: "Optional target end date for date ranges (YYYY-MM-DD)"
+ *                 example: "2026-11-12"
+ *               title:
+ *                 type: string
+ *                 example: "Venue Maintenance & Renovation"
+ *               eventType:
+ *                 type: string
+ *                 example: "MAINTENANCE"
+ *               notes:
+ *                 type: string
+ *                 example: "Audio equipment servicing and studio maintenance"
+ *               slotType:
+ *                 type: string
+ *                 enum: [FULL_DAY, MORNING, EVENING]
+ *                 example: "FULL_DAY"
+ *     responses:
+ *       200:
+ *         description: Date(s) successfully marked as blocked
+ */
+router.post(
+  '/calendar/block',
+  validateRequest(blockDatesSchema),
+  CalendarController.blockDatesProtected
+);
+
+/**
+ * @swagger
+ * /api/v1/vendor/calendar/{id}:
+ *   delete:
+ *     summary: Unblock a date and restore availability
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [Vendor Calendar & Event Availability]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Calendar entry ID
+ *     responses:
+ *       200:
+ *         description: Date unblocked successfully
+ */
+router.delete('/calendar/:id', CalendarController.unblockDateProtected);
+
+/**
+ * @swagger
+ * /api/v1/vendor/calendar/verify-date:
+ *   get:
+ *     summary: Quick date availability check for vendor
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [Vendor Calendar & Event Availability]
+ *     parameters:
+ *       - in: query
+ *         name: date
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: "2026-12-15"
+ *       - in: query
+ *         name: slotType
+ *         schema:
+ *           type: string
+ *           enum: [FULL_DAY, MORNING, EVENING]
+ *         example: "FULL_DAY"
+ *     responses:
+ *       200:
+ *         description: Verification result with conflict details
+ */
+router.get('/calendar/verify-date', CalendarController.verifyDateProtected);
 
 export default router;

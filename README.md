@@ -81,6 +81,9 @@ http://localhost:5000/api-docs
 
 ### 5. Run Test Suites
 ```bash
+# Run Calendar & Event Availability E2E Tests
+npm run test:calendar
+
 # Run User & Chatbot Deal Negotiation E2E Tests
 npm run test:user
 
@@ -99,9 +102,19 @@ npm run test:e2e
 | `GET`  | `/api/v1/user/vendors` | Browse verified vendors (supports `category`, `city`, `search`, pagination) |
 | `GET`  | `/api/v1/user/vendors/:id` | Get public vendor profile + packages + **integration values** |
 | `GET`  | `/api/v1/user/vendors/:id/banking` | Get verified vendor banking & UPI settlement details |
+| `GET`  | `/api/v1/user/vendors/:vendorId/calendar` | Get vendor monthly calendar (Available vs Booked dates) |
+| `GET`  | `/api/v1/user/vendors/:vendorId/calendar/verify-date` | Verify if vendor has an event or is open on a date (+ alternatives) |
 | `POST` | `/api/v1/user/deals/chatbot` | **Deal with Chatbot**: AI package price bargaining & contract quote |
 | `POST` | `/api/v1/user/deals/:dealId/negotiate` | Send counter-offer or message to chatbot |
 | `GET`  | `/api/v1/user/deals/:dealId` | View negotiated deal status, chat history, and banking breakdown |
+
+### 📅 2. Vendor Calendar & Availability Management (Protected)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET`  | `/api/v1/vendor/calendar` | Get authenticated vendor's full event schedule, bookings, and blocked slots |
+| `POST` | `/api/v1/vendor/calendar/block` | Manually block date(s) for personal leave, maintenance, or external events |
+| `DELETE`| `/api/v1/vendor/calendar/:id` | Unblock a date and restore availability |
+| `GET`  | `/api/v1/vendor/calendar/verify-date` | Quick date availability verification from vendor portal |
 
 ### 🔐 2. Vendor Authentication
 | Method | Endpoint | Description |

@@ -4,6 +4,7 @@ import {
   createChatbotDealSchema,
   negotiateDealSchema,
 } from '../controllers/user.controller';
+import { CalendarController } from '../controllers/calendar.controller';
 import { validateRequest } from '../middlewares/validate.middleware';
 
 const router = Router();
@@ -96,6 +97,75 @@ router.get('/vendors/:id', UserController.getVendorDetail);
  *         description: Verified banking details and payment schedule
  */
 router.get('/vendors/:id/banking', UserController.getVendorBanking);
+
+/**
+ * @swagger
+ * /api/v1/user/vendors/{vendorId}/calendar:
+ *   get:
+ *     summary: View vendor monthly or date-range calendar (Available vs Booked dates)
+ *     tags: [Vendor Calendar & Event Availability]
+ *     parameters:
+ *       - in: path
+ *         name: vendorId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: "70421caf-a7ef-4cad-9960-48ba6fabf7a7"
+ *       - in: query
+ *         name: month
+ *         schema:
+ *           type: string
+ *         description: "Target month in YYYY-MM format (e.g. 2026-12)"
+ *         example: "2026-12"
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *         description: "Custom start date YYYY-MM-DD"
+ *         example: "2026-12-01"
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *         description: "Custom end date YYYY-MM-DD"
+ *         example: "2026-12-31"
+ *     responses:
+ *       200:
+ *         description: Calendar availability matrix with available and booked dates
+ */
+router.get('/vendors/:vendorId/calendar', CalendarController.getVendorCalendarPublic);
+
+/**
+ * @swagger
+ * /api/v1/user/vendors/{vendorId}/calendar/verify-date:
+ *   get:
+ *     summary: Verify whether a vendor has an event or is available on a specific date
+ *     tags: [Vendor Calendar & Event Availability]
+ *     parameters:
+ *       - in: path
+ *         name: vendorId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: "70421caf-a7ef-4cad-9960-48ba6fabf7a7"
+ *       - in: query
+ *         name: date
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "Target event date YYYY-MM-DD (e.g. 2026-12-15)"
+ *         example: "2026-12-15"
+ *       - in: query
+ *         name: slotType
+ *         schema:
+ *           type: string
+ *           enum: [FULL_DAY, MORNING, EVENING]
+ *         example: "FULL_DAY"
+ *     responses:
+ *       200:
+ *         description: Availability status, conflict report, and nearby alternate available dates
+ */
+router.get('/vendors/:vendorId/calendar/verify-date', CalendarController.verifyDatePublic);
 
 /**
  * @swagger

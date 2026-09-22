@@ -494,6 +494,135 @@ export async function seedDatabase() {
     });
 
     console.log(`✅ Seeded Sample Deal & Chatbot Negotiation: ${sampleDealId}`);
+
+    // Seed Calendar Booking for the Deal
+    await prisma.vendorCalendar.upsert({
+      where: {
+        vendorId_date_slotType: {
+          vendorId: firstVendor.id,
+          date: '2026-12-15',
+          slotType: 'FULL_DAY',
+        },
+      },
+      update: {
+        dealId: sampleDealId,
+        status: 'BOOKED',
+        title: 'Aisha Kapoor - Wedding & Reception',
+        eventType: 'Wedding & Reception',
+        clientName: 'Aisha Kapoor',
+        clientPhone: '+919811122233',
+        notes: '30% advance received, Royal Mandap & Floral decor confirmed.',
+      },
+      create: {
+        vendorId: firstVendor.id,
+        date: '2026-12-15',
+        slotType: 'FULL_DAY',
+        dealId: sampleDealId,
+        status: 'BOOKED',
+        title: 'Aisha Kapoor - Wedding & Reception',
+        eventType: 'Wedding & Reception',
+        clientName: 'Aisha Kapoor',
+        clientPhone: '+919811122233',
+        notes: '30% advance received, Royal Mandap & Floral decor confirmed.',
+      },
+    });
+
+    // Seed additional sample events and blocked dates for Royal Grand Decorators
+    const additionalCalendarEntries = [
+      {
+        vendorId: firstVendor.id,
+        date: '2026-11-20',
+        slotType: 'FULL_DAY',
+        status: 'BOOKED',
+        title: 'Rohan & Priya Sangeet Night',
+        eventType: 'Sangeet',
+        clientName: 'Rohan Malhotra',
+        clientPhone: '+919822334455',
+        notes: 'Neon glow stage and selfie booth setup.',
+      },
+      {
+        vendorId: firstVendor.id,
+        date: '2026-11-28',
+        slotType: 'FULL_DAY',
+        status: 'BOOKED',
+        title: 'TechCorp Annual Leadership Gala',
+        eventType: 'Corporate',
+        clientName: 'Kavita Nair',
+        clientPhone: '+919833445566',
+        notes: 'Corporate LED backdrop and entrance branding.',
+      },
+      {
+        vendorId: firstVendor.id,
+        date: '2026-12-05',
+        slotType: 'FULL_DAY',
+        status: 'BLOCKED',
+        title: 'Floral Inventory Refresh & Studio Maintenance',
+        eventType: 'MAINTENANCE',
+        notes: 'Scheduled warehouse audit and prop reconditioning.',
+      },
+      {
+        vendorId: firstVendor.id,
+        date: '2026-12-25',
+        slotType: 'FULL_DAY',
+        status: 'BOOKED',
+        title: 'Christmas Eve & Day Grand Ballroom Decor',
+        eventType: 'Christmas Gala',
+        clientName: 'Oberoi Grand Banquet',
+        clientPhone: '+919844556677',
+        notes: 'Full winter wonderland ballroom theme.',
+      },
+    ];
+
+    for (const entry of additionalCalendarEntries) {
+      await prisma.vendorCalendar.upsert({
+        where: {
+          vendorId_date_slotType: {
+            vendorId: entry.vendorId,
+            date: entry.date,
+            slotType: entry.slotType,
+          },
+        },
+        update: entry,
+        create: entry,
+      });
+    }
+
+    // Seed a calendar booking for Saffron Spice Caterers (second vendor)
+    const secondVendor = await prisma.vendor.findFirst({
+      where: { phone: '+919876500002' },
+    });
+    if (secondVendor) {
+      await prisma.vendorCalendar.upsert({
+        where: {
+          vendorId_date_slotType: {
+            vendorId: secondVendor.id,
+            date: '2026-11-22',
+            slotType: 'FULL_DAY',
+          },
+        },
+        update: {
+          status: 'BOOKED',
+          title: 'Gupta Family Silver Jubilee Celebration',
+          eventType: 'Anniversary Dinner',
+          clientName: 'Sanjay Gupta',
+          clientPhone: '+919855667788',
+          notes: '350 Pax Royal Mughlai & Live Chaat banquet.',
+        },
+        create: {
+          vendorId: secondVendor.id,
+          date: '2026-11-22',
+          slotType: 'FULL_DAY',
+          status: 'BOOKED',
+          title: 'Gupta Family Silver Jubilee Celebration',
+          eventType: 'Anniversary Dinner',
+          clientName: 'Sanjay Gupta',
+          clientPhone: '+919855667788',
+          notes: '350 Pax Royal Mughlai & Live Chaat banquet.',
+        },
+      });
+    }
+
+    console.log(`✅ Seeded Sample Vendor Calendar Bookings and Maintenance Blocks`);
   }
 
   console.log('🎉 Database seeding completed successfully!\n');

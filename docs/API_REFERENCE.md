@@ -30,6 +30,8 @@ Authorization: Bearer <JWT_TOKEN>
 | **User Directory** | `GET` | `/user/vendors` | None | Search & browse verified vendors with category/city filters |
 | **User Directory** | `GET` | `/user/vendors/:id` | None | Get vendor profile, portfolio, packages, and integration values |
 | **User Banking** | `GET` | `/user/vendors/:id/banking` | None | Get verified vendor banking, IFSC, and UPI ID for payments |
+| **User Calendar** | `GET` | `/user/vendors/:vendorId/calendar` | None | Get vendor monthly calendar matrix (Available vs Booked dates) |
+| **User Calendar** | `GET` | `/user/vendors/:vendorId/calendar/verify-date` | None | Verify date availability, conflict reasons & alternatives |
 | **User Chatbot** | `POST` | `/user/deals/chatbot` | None | Initiate automated deal negotiation with AI chatbot |
 | **User Chatbot** | `POST` | `/user/deals/:dealId/negotiate` | None | Multi-turn negotiation: send message or counter-offer |
 | **User Chatbot** | `GET` | `/user/deals/:dealId` | None | Retrieve deal details, chat history, and settlement breakdown |
@@ -44,6 +46,10 @@ Authorization: Bearer <JWT_TOKEN>
 | **Vendor Profile** | `GET` | `/vendor/profile` | Bearer | Get authenticated vendor profile |
 | **Vendor Profile** | `PUT` | `/vendor/profile` | Bearer | Update business details, category, address |
 | **Vendor Dashboard**| `GET` | `/vendor/dashboard/stats` | Bearer | Get dashboard metrics and alerts |
+| **Vendor Calendar**| `GET` | `/vendor/calendar` | Bearer | Get vendor personal event schedule, client info, notes |
+| **Vendor Calendar**| `POST` | `/vendor/calendar/block` | Bearer | Block date(s) for maintenance, leave, or offline booking |
+| **Vendor Calendar**| `DELETE`| `/vendor/calendar/:id` | Bearer | Unblock date and release back to available |
+| **Vendor Calendar**| `GET` | `/vendor/calendar/verify-date` | Bearer | Quick date availability check for vendor |
 | **Price Card** | `POST` | `/vendor/price-card` | Bearer | Create service package rate card |
 | **Price Card** | `GET` | `/vendor/price-card` | Bearer | List all price cards for vendor |
 | **Price Card** | `GET` | `/vendor/price-card/:id` | Bearer | Get single price card by ID |
@@ -212,7 +218,134 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-### 1.4 Deal with Chatbot: Initiate Negotiation
+### 1.4 View Vendor Monthly Calendar (Available vs Booked Dates)
+`GET /api/v1/user/vendors/:vendorId/calendar?month=2026-12`
+
+Query Parameters:
+- `month` (string, optional): Target month in `YYYY-MM` format (e.g. `2026-12`). Defaults to current month.
+- `startDate` (string, optional): Custom start date `YYYY-MM-DD`.
+- `endDate` (string, optional): Custom end date `YYYY-MM-DD`.
+
+**Sample Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "vendor": {
+      "id": "70421caf-a7ef-4cad-9960-48ba6fabf7a7",
+      "businessName": "Royal Grand Decorators & Events",
+      "category": "DECORATION"
+    },
+    "period": {
+      "label": "December 2026",
+      "startDate": "2026-12-01",
+      "endDate": "2026-12-31",
+      "totalDays": 31
+    },
+    "summary": {
+      "totalDays": 31,
+      "availableDays": 28,
+      "bookedDays": 2,
+      "blockedDays": 1,
+      "tentativeDays": 0
+    },
+    "calendar": [
+      {
+        "date": "2026-12-05",
+        "dayOfWeek": "Saturday",
+        "isAvailable": false,
+        "status": "BLOCKED",
+        "slotType": "FULL_DAY",
+        "event": {
+          "title": "Date Unavailable",
+          "eventType": "MAINTENANCE"
+        }
+      },
+      {
+        "date": "2026-12-10",
+        "dayOfWeek": "Thursday",
+        "isAvailable": true,
+        "status": "AVAILABLE",
+        "slotType": "FULL_DAY",
+        "event": null
+      },
+      {
+        "date": "2026-12-15",
+        "dayOfWeek": "Tuesday",
+        "isAvailable": false,
+        "status": "BOOKED",
+        "slotType": "FULL_DAY",
+        "event": {
+          "title": "Event Booked",
+          "eventType": "Wedding & Reception"
+        }
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 1.5 Verify Date Availability & Conflict Report
+`GET /api/v1/user/vendors/:vendorId/calendar/verify-date?date=2026-12-15`
+
+Query Parameters:
+- `date` (string, required): Date in `YYYY-MM-DD` format (e.g. `2026-12-15`).
+- `slotType` (string, optional): `FULL_DAY` (default), `MORNING`, or `EVENING`.
+
+**Sample Response for Booked Date (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "vendorId": "70421caf-a7ef-4cad-9960-48ba6fabf7a7",
+    "businessName": "Royal Grand Decorators & Events",
+    "date": "2026-12-15",
+    "dayOfWeek": "Tuesday",
+    "slotType": "FULL_DAY",
+    "isAvailable": false,
+    "status": "BOOKED",
+    "message": "Vendor already has an event scheduled on 2026-12-15 (Tuesday): Wedding & Reception.",
+    "conflict": {
+      "status": "BOOKED",
+      "eventType": "Wedding & Reception",
+      "title": "Booked Event",
+      "slotType": "FULL_DAY"
+    },
+    "suggestedAvailableDates": [
+      "2026-12-08",
+      "2026-12-09",
+      "2026-12-10",
+      "2026-12-11",
+      "2026-12-12"
+    ]
+  }
+}
+```
+
+**Sample Response for Available Date (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "vendorId": "70421caf-a7ef-4cad-9960-48ba6fabf7a7",
+    "businessName": "Royal Grand Decorators & Events",
+    "date": "2026-12-10",
+    "dayOfWeek": "Thursday",
+    "slotType": "FULL_DAY",
+    "isAvailable": true,
+    "status": "AVAILABLE",
+    "message": "Great news! Royal Grand Decorators & Events is open and available for bookings on 2026-12-10 (Thursday).",
+    "conflict": null,
+    "suggestedAvailableDates": []
+  }
+}
+```
+
+---
+
+### 1.6 Deal with Chatbot: Initiate Negotiation
 `POST /api/v1/user/deals/chatbot`
 
 **Request Body Schema:**
@@ -273,7 +406,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-### 1.5 Multi-turn Negotiation with Chatbot
+### 1.7 Multi-turn Negotiation with Chatbot
 `POST /api/v1/user/deals/:dealId/negotiate`
 
 **Request Body Schema:**
@@ -307,7 +440,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-### 1.6 Retrieve Deal Details & Payment Breakdown
+### 1.8 Retrieve Deal Details & Payment Breakdown
 `GET /api/v1/user/deals/:dealId`
 
 **Sample Response (200 OK):**
