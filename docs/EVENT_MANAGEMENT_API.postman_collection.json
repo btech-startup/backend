@@ -86,6 +86,54 @@
               "path": ["user", "vendors", "{{sampleVendorId}}", "banking"]
             }
           }
+        },
+        {
+          "name": "Get Vendor Monthly Calendar (Bearer Token Required)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/vendors/{{sampleVendorId}}/calendar?month=2026-12",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "vendors", "{{sampleVendorId}}", "calendar"],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "2026-12"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify Date Availability (Bearer Token Required)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/vendors/{{sampleVendorId}}/calendar/verify-date?date=2026-12-15",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "vendors", "{{sampleVendorId}}", "calendar", "verify-date"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-12-15"
+                }
+              ]
+            }
+          }
         }
       ]
     },
@@ -324,11 +372,96 @@
           "name": "Public Client View of Price Cards",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/vendor/price-card/public/{{sampleVendorId}}",
               "host": ["{{baseUrl}}"],
               "path": ["vendor", "price-card", "public", "{{sampleVendorId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Vendor Calendar & Availability",
+      "item": [
+        {
+          "name": "Get Vendor Calendar Schedule (Protected)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/vendor/calendar?month=2026-12",
+              "host": ["{{baseUrl}}"],
+              "path": ["vendor", "calendar"],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "2026-12"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Block Date(s) on Calendar (Protected)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-12-18\",\n  \"title\": \"Warehouse Maintenance & Prop Painting\",\n  \"eventType\": \"MAINTENANCE\",\n  \"notes\": \"Annual refurbishing of wedding mandap props\",\n  \"slotType\": \"FULL_DAY\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/vendor/calendar/block",
+              "host": ["{{baseUrl}}"],
+              "path": ["vendor", "calendar", "block"]
+            }
+          }
+        },
+        {
+          "name": "Quick Verify Date (Vendor Protected)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/vendor/calendar/verify-date?date=2026-12-15",
+              "host": ["{{baseUrl}}"],
+              "path": ["vendor", "calendar", "verify-date"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-12-15"
+                }
+              ]
             }
           }
         }

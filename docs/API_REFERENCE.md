@@ -30,8 +30,8 @@ Authorization: Bearer <JWT_TOKEN>
 | **User Directory** | `GET` | `/user/vendors` | None | Search & browse verified vendors with category/city filters |
 | **User Directory** | `GET` | `/user/vendors/:id` | None | Get vendor profile, portfolio, packages, and integration values |
 | **User Banking** | `GET` | `/user/vendors/:id/banking` | None | Get verified vendor banking, IFSC, and UPI ID for payments |
-| **User Calendar** | `GET` | `/user/vendors/:vendorId/calendar` | None | Get vendor monthly calendar matrix (Available vs Booked dates) |
-| **User Calendar** | `GET` | `/user/vendors/:vendorId/calendar/verify-date` | None | Verify date availability, conflict reasons & alternatives |
+| **User Calendar** | `GET` | `/user/vendors/:vendorId/calendar` | Bearer | Get vendor monthly calendar matrix (Requires vendor token) |
+| **User Calendar** | `GET` | `/user/vendors/:vendorId/calendar/verify-date` | Bearer | Verify date availability, conflict reasons & alternatives (Requires vendor token) |
 | **User Chatbot** | `POST` | `/user/deals/chatbot` | None | Initiate automated deal negotiation with AI chatbot |
 | **User Chatbot** | `POST` | `/user/deals/:dealId/negotiate` | None | Multi-turn negotiation: send message or counter-offer |
 | **User Chatbot** | `GET` | `/user/deals/:dealId` | None | Retrieve deal details, chat history, and settlement breakdown |
@@ -55,7 +55,7 @@ Authorization: Bearer <JWT_TOKEN>
 | **Price Card** | `GET` | `/vendor/price-card/:id` | Bearer | Get single price card by ID |
 | **Price Card** | `PUT` | `/vendor/price-card/:id` | Bearer | Update price card package |
 | **Price Card** | `DELETE`| `/vendor/price-card/:id` | Bearer | Delete price card package |
-| **Price Card** | `GET` | `/vendor/price-card/public/:vendorId` | None | Client view of vendor active price packages |
+| **Price Card** | `GET` | `/vendor/price-card/public/:vendorId` | Bearer | Client view of vendor active price packages |
 
 ---
 
@@ -221,6 +221,13 @@ Authorization: Bearer <JWT_TOKEN>
 ### 1.4 View Vendor Monthly Calendar (Available vs Booked Dates)
 `GET /api/v1/user/vendors/:vendorId/calendar?month=2026-12`
 
+**Security & Authorization:**
+- **Auth Type**: `Bearer <vendor_token>` (Required in `Authorization` header)
+- **Authorization Rule**: The token's `vendorId` must match the `:vendorId` path parameter. If the token is missing, expired, or belongs to another vendor, access is rejected with `401 Unauthorized` or `403 Forbidden`.
+
+Headers:
+- `Authorization`: `Bearer <token>`
+
 Query Parameters:
 - `month` (string, optional): Target month in `YYYY-MM` format (e.g. `2026-12`). Defaults to current month.
 - `startDate` (string, optional): Custom start date `YYYY-MM-DD`.
@@ -289,6 +296,13 @@ Query Parameters:
 
 ### 1.5 Verify Date Availability & Conflict Report
 `GET /api/v1/user/vendors/:vendorId/calendar/verify-date?date=2026-12-15`
+
+**Security & Authorization:**
+- **Auth Type**: `Bearer <vendor_token>` (Required in `Authorization` header)
+- **Authorization Rule**: The token's `vendorId` must match the `:vendorId` path parameter. If the token is missing, expired, or belongs to another vendor, access is rejected with `401 Unauthorized` or `403 Forbidden`.
+
+Headers:
+- `Authorization`: `Bearer <token>`
 
 Query Parameters:
 - `date` (string, required): Date in `YYYY-MM-DD` format (e.g. `2026-12-15`).

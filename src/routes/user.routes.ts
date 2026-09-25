@@ -5,6 +5,7 @@ import {
   negotiateDealSchema,
 } from '../controllers/user.controller';
 import { CalendarController } from '../controllers/calendar.controller';
+import { authenticateVendor, authorizeVendorOwnership } from '../middlewares/auth.middleware';
 import { validateRequest } from '../middlewares/validate.middleware';
 
 const router = Router();
@@ -103,6 +104,8 @@ router.get('/vendors/:id/banking', UserController.getVendorBanking);
  * /api/v1/user/vendors/{vendorId}/calendar:
  *   get:
  *     summary: View vendor monthly or date-range calendar (Available vs Booked dates)
+ *     security:
+ *       - bearerAuth: []
  *     tags: [Vendor Calendar & Event Availability]
  *     parameters:
  *       - in: path
@@ -132,14 +135,25 @@ router.get('/vendors/:id/banking', UserController.getVendorBanking);
  *     responses:
  *       200:
  *         description: Calendar availability matrix with available and booked dates
+ *       401:
+ *         description: Authentication token missing or invalid
+ *       403:
+ *         description: Forbidden - token does not match requested vendor
  */
-router.get('/vendors/:vendorId/calendar', CalendarController.getVendorCalendarPublic);
+router.get(
+  '/vendors/:vendorId/calendar',
+  authenticateVendor,
+  authorizeVendorOwnership,
+  CalendarController.getVendorCalendarPublic
+);
 
 /**
  * @swagger
  * /api/v1/user/vendors/{vendorId}/calendar/verify-date:
  *   get:
  *     summary: Verify whether a vendor has an event or is available on a specific date
+ *     security:
+ *       - bearerAuth: []
  *     tags: [Vendor Calendar & Event Availability]
  *     parameters:
  *       - in: path
@@ -164,8 +178,17 @@ router.get('/vendors/:vendorId/calendar', CalendarController.getVendorCalendarPu
  *     responses:
  *       200:
  *         description: Availability status, conflict report, and nearby alternate available dates
+ *       401:
+ *         description: Authentication token missing or invalid
+ *       403:
+ *         description: Forbidden - token does not match requested vendor
  */
-router.get('/vendors/:vendorId/calendar/verify-date', CalendarController.verifyDatePublic);
+router.get(
+  '/vendors/:vendorId/calendar/verify-date',
+  authenticateVendor,
+  authorizeVendorOwnership,
+  CalendarController.verifyDatePublic
+);
 
 /**
  * @swagger

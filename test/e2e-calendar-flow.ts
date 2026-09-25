@@ -1,10 +1,10 @@
 /**
  * End-to-End Test Suite for Vendor Calendar & Event Availability
  * Verifies:
- *  1. Public Vendor Monthly Calendar Lookup (/api/v1/user/vendors/:vendorId/calendar)
- *  2. Public Date Availability Verification for Available Date (/api/v1/user/vendors/:vendorId/calendar/verify-date)
- *  3. Public Date Availability Verification for Booked Date + Nearby Suggestions
- *  4. Vendor Authentication & Private Calendar Schedule Access (/api/v1/vendor/calendar)
+ *  1. Protected Vendor Monthly Calendar Security & Token Authorization (401 on missing, 403 on mismatched, 200 on authorized)
+ *  2. Protected Date Availability Verification (401 on missing, 403 on mismatched, 200 on authorized)
+ *  3. Protected Date Availability Verification for Booked Date + Nearby Suggestions
+ *  4. Vendor Private Calendar Schedule Access (/api/v1/vendor/calendar)
  *  5. Vendor Manual Date Blocking (/api/v1/vendor/calendar/block)
  *  6. Vendor Date Unblocking (/api/v1/vendor/calendar/:id)
  *  7. Chatbot Deal Auto-Booking Calendar Integration
@@ -61,17 +61,78 @@ async function runCalendarE2ETests() {
     const vendorId = sampleVendor.id;
     console.log(`Testing Vendor: "${sampleVendor.businessName}" (ID: ${vendorId})`);
 
+    // Fetch a second vendor to test authorization boundary (mismatched token)
+    const otherVendor = await prisma.vendor.findFirst({
+      where: { phone: '+919876500002' },
+    });
+    if (!otherVendor) {
+      throw new Error('Second sample vendor (+919876500002) not found in database');
+    }
+
+    // Authenticate Vendor 1
+    const sendOtp1 = await request('/api/v1/auth/send-otp', {
+      method: 'POST',
+      body: { phone: sampleVendor.phone },
+    });
+    const otp1 = sendOtp1.data.data?.devOtp || '123456';
+    const verifyOtp1 = await request('/api/v1/auth/verify-otp', {
+      method: 'POST',
+      body: { phone: sampleVendor.phone, otp: otp1 },
+    });
+    const vendorToken = verifyOtp1.data.data.token;
+
+    // Authenticate Vendor 2 (for authorization cross-check)
+    const sendOtp2 = await request('/api/v1/auth/send-otp', {
+      method: 'POST',
+      body: { phone: otherVendor.phone },
+    });
+    const otp2 = sendOtp2.data.data?.devOtp || '123456';
+    const verifyOtp2 = await request('/api/v1/auth/verify-otp', {
+      method: 'POST',
+      body: { phone: otherVendor.phone, otp: otp2 },
+    });
+    const otherVendorToken = verifyOtp2.data.data.token;
+
     // ==========================================
-    // Test 1: Public Vendor Monthly Calendar
+    // Test 1: Protected Vendor Monthly Calendar Access & Authorization
     // ==========================================
-    console.log('\n--- Test 1: Public Vendor Monthly Calendar (2026-12) ---');
-    const calRes = await request(`/api/v1/user/vendors/${vendorId}/calendar?month=2026-12`);
-    console.log('Status:', calRes.status);
+    console.log('\n--- Test 1: Protected Vendor Monthly Calendar Security & Access (/user/vendors/:vendorId/calendar) ---');
+    
+    // 1a. Missing token -> Expect 401 Unauthorized
+    const calNoTokenRes = await request(`/api/v1/user/vendors/${vendorId}/calendar?month=2026-12`);
+    console.log('No-token status (Expected 401):', calNoTokenRes.status);
+    if (calNoTokenRes.status !== 401 || calNoTokenRes.data.success) {
+      throw new Error(`Expected 401 Unauthorized when accessing calendar without token, got ${calNoTokenRes.status}`);
+    }
+
+    // 1b. Invalid token -> Expect 401 Unauthorized
+    const calInvalidTokenRes = await request(`/api/v1/user/vendors/${vendorId}/calendar?month=2026-12`, {
+      token: 'invalid_malformed_jwt_token',
+    });
+    console.log('Invalid-token status (Expected 401):', calInvalidTokenRes.status);
+    if (calInvalidTokenRes.status !== 401) {
+      throw new Error(`Expected 401 for invalid token, got ${calInvalidTokenRes.status}`);
+    }
+
+    // 1c. Mismatched vendor token -> Expect 403 Forbidden
+    const calWrongVendorRes = await request(`/api/v1/user/vendors/${vendorId}/calendar?month=2026-12`, {
+      token: otherVendorToken,
+    });
+    console.log('Wrong-vendor token status (Expected 403):', calWrongVendorRes.status);
+    if (calWrongVendorRes.status !== 403) {
+      throw new Error(`Expected 403 Forbidden when accessing vendor calendar with different vendor token, got ${calWrongVendorRes.status}`);
+    }
+
+    // 1d. Matching vendor token -> Expect 200 OK
+    const calRes = await request(`/api/v1/user/vendors/${vendorId}/calendar?month=2026-12`, {
+      token: vendorToken,
+    });
+    console.log('Authorized status (Expected 200):', calRes.status);
     console.log('Calendar Period:', calRes.data.data.period);
     console.log('Calendar Summary:', calRes.data.data.summary);
 
     if (calRes.status !== 200 || !calRes.data.success) {
-      throw new Error(`Failed to fetch public calendar: ${calRes.data.message}`);
+      throw new Error(`Failed to fetch calendar with authorized token: ${calRes.data.message}`);
     }
 
     const decDays = calRes.data.data.calendar;
@@ -105,10 +166,30 @@ async function runCalendarE2ETests() {
     }
 
     // ==========================================
-    // Test 2: Public Date Verification (Available Date)
+    // Test 2: Protected Date Verification Security & Access (Available Date)
     // ==========================================
-    console.log('\n--- Test 2: Verify Open / Available Date (2026-12-10) ---');
-    const verifyAvailRes = await request(`/api/v1/user/vendors/${vendorId}/calendar/verify-date?date=2026-12-10`);
+    console.log('\n--- Test 2: Protected Date Verification Security & Access (2026-12-10) ---');
+    
+    // 2a. Missing token -> 401
+    const verifyNoToken = await request(`/api/v1/user/vendors/${vendorId}/calendar/verify-date?date=2026-12-10`);
+    console.log('Verify Date No-token status (Expected 401):', verifyNoToken.status);
+    if (verifyNoToken.status !== 401) {
+      throw new Error('Expected 401 when verifying date without token');
+    }
+
+    // 2b. Mismatched token -> 403
+    const verifyWrongToken = await request(`/api/v1/user/vendors/${vendorId}/calendar/verify-date?date=2026-12-10`, {
+      token: otherVendorToken,
+    });
+    console.log('Verify Date Wrong-token status (Expected 403):', verifyWrongToken.status);
+    if (verifyWrongToken.status !== 403) {
+      throw new Error('Expected 403 when verifying date with mismatched vendor token');
+    }
+
+    // 2c. Matching token -> 200
+    const verifyAvailRes = await request(`/api/v1/user/vendors/${vendorId}/calendar/verify-date?date=2026-12-10`, {
+      token: vendorToken,
+    });
     console.log('Status:', verifyAvailRes.status);
     console.log('Verify Result:', verifyAvailRes.data.data);
 
@@ -117,10 +198,12 @@ async function runCalendarE2ETests() {
     }
 
     // ==========================================
-    // Test 3: Public Date Verification (Booked Date + Nearby Suggestions)
+    // Test 3: Protected Date Verification (Booked Date + Nearby Suggestions)
     // ==========================================
     console.log('\n--- Test 3: Verify Booked Date (2026-12-15) + Recommendations ---');
-    const verifyBookedRes = await request(`/api/v1/user/vendors/${vendorId}/calendar/verify-date?date=2026-12-15`);
+    const verifyBookedRes = await request(`/api/v1/user/vendors/${vendorId}/calendar/verify-date?date=2026-12-15`, {
+      token: vendorToken,
+    });
     console.log('Status:', verifyBookedRes.status);
     console.log('Verify Result:', verifyBookedRes.data.data);
 
@@ -136,28 +219,9 @@ async function runCalendarE2ETests() {
     console.log('Suggested Alternatives:', verifyBookedRes.data.data.suggestedAvailableDates);
 
     // ==========================================
-    // Test 4: Vendor Authentication & Private Calendar Schedule
+    // Test 4: Vendor Private Calendar Schedule Access
     // ==========================================
-    console.log('\n--- Test 4: Vendor Login & Private Calendar Schedule Access ---');
-    // Send OTP first
-    const sendOtpRes = await request('/api/v1/auth/send-otp', {
-      method: 'POST',
-      body: { phone: sampleVendor.phone },
-    });
-    const otp = sendOtpRes.data.data?.devOtp || '123456';
-
-    // Login with OTP
-    const verifyOtpRes = await request('/api/v1/auth/verify-otp', {
-      method: 'POST',
-      body: { phone: sampleVendor.phone, otp },
-    });
-    if (!verifyOtpRes.data.success) {
-      throw new Error(`OTP verify failed: ${verifyOtpRes.data.message}`);
-    }
-    const vendorToken = verifyOtpRes.data.data.token;
-    console.log('Vendor authenticated successfully, token acquired');
-
-    // Fetch vendor private calendar
+    console.log('\n--- Test 4: Vendor Private Calendar Schedule Access (/api/v1/vendor/calendar) ---');
     const vendorCalRes = await request('/api/v1/vendor/calendar?month=2026-12', {
       token: vendorToken,
     });
@@ -192,8 +256,10 @@ async function runCalendarE2ETests() {
     }
     const blockedEntryId = blockRes.data.data.blockedDates[0].id;
 
-    // Verify date is now blocked publicly
-    const verifyBlocked = await request(`/api/v1/user/vendors/${vendorId}/calendar/verify-date?date=2026-12-18`);
+    // Verify date is now blocked publicly (with token)
+    const verifyBlocked = await request(`/api/v1/user/vendors/${vendorId}/calendar/verify-date?date=2026-12-18`, {
+      token: vendorToken,
+    });
     console.log('Verify Newly Blocked Date:', verifyBlocked.data.data);
     if (verifyBlocked.data.data.isAvailable !== false || verifyBlocked.data.data.status !== 'BLOCKED') {
       throw new Error('Date 2026-12-18 should now reflect as BLOCKED');
@@ -214,8 +280,10 @@ async function runCalendarE2ETests() {
       throw new Error('Failed to unblock date');
     }
 
-    // Verify date is now open again
-    const verifyUnblocked = await request(`/api/v1/user/vendors/${vendorId}/calendar/verify-date?date=2026-12-18`);
+    // Verify date is now open again (with token)
+    const verifyUnblocked = await request(`/api/v1/user/vendors/${vendorId}/calendar/verify-date?date=2026-12-18`, {
+      token: vendorToken,
+    });
     console.log('Verify Unblocked Date:', verifyUnblocked.data.data);
     if (verifyUnblocked.data.data.isAvailable !== true || verifyUnblocked.data.data.status !== 'AVAILABLE') {
       throw new Error('Date 2026-12-18 should now be restored to AVAILABLE');
@@ -249,8 +317,10 @@ async function runCalendarE2ETests() {
       agreedPrice: dealRes.data.data.agreedPrice,
     });
 
-    // Check calendar for 2026-11-12
-    const checkBookedViaDeal = await request(`/api/v1/user/vendors/${vendorId}/calendar/verify-date?date=2026-11-12`);
+    // Check calendar for 2026-11-12 (with token)
+    const checkBookedViaDeal = await request(`/api/v1/user/vendors/${vendorId}/calendar/verify-date?date=2026-11-12`, {
+      token: vendorToken,
+    });
     console.log('Verify Calendar after Deal Acceptance:', checkBookedViaDeal.data.data);
     if (checkBookedViaDeal.data.data.isAvailable !== false || checkBookedViaDeal.data.data.status !== 'BOOKED') {
       throw new Error('Calendar slot for 2026-11-12 should be automatically registered as BOOKED after deal acceptance!');

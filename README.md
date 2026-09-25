@@ -102,8 +102,8 @@ npm run test:e2e
 | `GET`  | `/api/v1/user/vendors` | Browse verified vendors (supports `category`, `city`, `search`, pagination) |
 | `GET`  | `/api/v1/user/vendors/:id` | Get public vendor profile + packages + **integration values** |
 | `GET`  | `/api/v1/user/vendors/:id/banking` | Get verified vendor banking & UPI settlement details |
-| `GET`  | `/api/v1/user/vendors/:vendorId/calendar` | Get vendor monthly calendar (Available vs Booked dates) |
-| `GET`  | `/api/v1/user/vendors/:vendorId/calendar/verify-date` | Verify if vendor has an event or is open on a date (+ alternatives) |
+| `GET`  | `/api/v1/user/vendors/:vendorId/calendar` | Get vendor monthly calendar (Available vs Booked dates - Bearer token required) |
+| `GET`  | `/api/v1/user/vendors/:vendorId/calendar/verify-date` | Verify if vendor has an event or is open on a date (+ alternatives - Bearer token required) |
 | `POST` | `/api/v1/user/deals/chatbot` | **Deal with Chatbot**: AI package price bargaining & contract quote |
 | `POST` | `/api/v1/user/deals/:dealId/negotiate` | Send counter-offer or message to chatbot |
 | `GET`  | `/api/v1/user/deals/:dealId` | View negotiated deal status, chat history, and banking breakdown |
@@ -146,7 +146,7 @@ npm run test:e2e
 | `GET`  | `/api/v1/vendor/price-card/:id` | Vendor | Get single price card |
 | `PUT`  | `/api/v1/vendor/price-card/:id` | Vendor | Update price card package |
 | `DELETE`| `/api/v1/vendor/price-card/:id` | Vendor | Delete price card package |
-| `GET`  | `/api/v1/vendor/price-card/public/:vendorId` | Public | Client view of vendor packages |
+| `GET`  | `/api/v1/vendor/price-card/public/:vendorId` | Vendor | Client view of vendor packages (Token required) |
 
 ---
 

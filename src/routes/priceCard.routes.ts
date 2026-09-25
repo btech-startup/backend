@@ -9,11 +9,16 @@ import { validateRequest } from '../middlewares/validate.middleware';
 
 const router = Router();
 
+// Protect all price card routes with vendor authentication
+router.use(authenticateVendor);
+
 /**
  * @swagger
  * /api/v1/vendor/price-card/public/{vendorId}:
  *   get:
- *     summary: Public endpoint for clients to view a vendor's published price cards
+ *     summary: View a vendor's published price cards
+ *     security:
+ *       - bearerAuth: []
  *     tags: [Price Card (Rate Card)]
  *     parameters:
  *       - in: path
@@ -26,11 +31,10 @@ const router = Router();
  *     responses:
  *       200:
  *         description: List of vendor active price card packages
+ *       401:
+ *         description: Authentication token is missing or malformed
  */
 router.get('/public/:vendorId', PriceCardController.getPublicPriceCards);
-
-// The following routes require vendor authentication
-router.use(authenticateVendor);
 
 /**
  * @swagger

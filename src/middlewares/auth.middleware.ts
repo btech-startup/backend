@@ -60,3 +60,30 @@ export const authenticateVendor = async (
     });
   }
 };
+
+/**
+ * Authorizes that the authenticated vendor token specifically belongs to the target vendorId in route parameters (:vendorId or :id).
+ * Returns 403 Forbidden if the token was issued for a different vendor.
+ */
+export const authorizeVendorOwnership = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  const targetVendorId = req.params.vendorId || req.params.id;
+
+  if (!targetVendorId) {
+    next();
+    return;
+  }
+
+  if (req.vendorId !== targetVendorId) {
+    res.status(403).json({
+      success: false,
+      message: "Access denied: You are not authorized to view or access this vendor's calendar information. Token does not match vendor ID.",
+    });
+    return;
+  }
+
+  next();
+};

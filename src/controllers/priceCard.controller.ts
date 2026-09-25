@@ -114,7 +114,7 @@ export class PriceCardController {
     }
   }
 
-  public static async getPublicPriceCards(req: Request, res: Response): Promise<void> {
+  public static async getPublicPriceCards(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { vendorId } = req.params;
       const result = await PriceCardService.getPublicVendorPriceCards(vendorId);

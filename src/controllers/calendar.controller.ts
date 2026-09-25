@@ -27,9 +27,10 @@ export const verifyDateQuerySchema = z.object({
 
 export class CalendarController {
   /**
-   * Public: Get monthly or date-range calendar showing available vs booked dates for a vendor
+   * Protected: Get monthly or date-range calendar showing available vs booked dates for a vendor
+   * Requires vendor authorization token matching target vendorId
    */
-  public static async getVendorCalendarPublic(req: Request, res: Response): Promise<void> {
+  public static async getVendorCalendarPublic(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { vendorId } = req.params;
       const { month, startDate, endDate } = req.query;
@@ -54,9 +55,10 @@ export class CalendarController {
   }
 
   /**
-   * Public: Verify whether a vendor is free or has an event on a specific date
+   * Protected: Verify whether a vendor is free or has an event on a specific date
+   * Requires vendor authorization token matching target vendorId
    */
-  public static async verifyDatePublic(req: Request, res: Response): Promise<void> {
+  public static async verifyDatePublic(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { vendorId } = req.params;
       const { date, slotType } = req.query;

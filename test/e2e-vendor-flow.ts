@@ -202,10 +202,16 @@ async function runE2ETests() {
       throw new Error('Price card price update failed');
     }
 
-    console.log('\n--- Step 12: Public View of Vendor Price Cards ---');
-    const publicPriceCardsRes = await request(`/api/v1/vendor/price-card/public/${vendorId}`);
-    console.log('Public Client View:', publicPriceCardsRes.data);
-    if (!publicPriceCardsRes.data.success) throw new Error('Public price card retrieval failed');
+    console.log('\n--- Step 12: View Vendor Price Cards (Token Auth Required) ---');
+    const unauthPriceCardsRes = await request(`/api/v1/vendor/price-card/public/${vendorId}`);
+    console.log('Without token (Expected 401 Locked):', unauthPriceCardsRes.status);
+    if (unauthPriceCardsRes.status !== 401) {
+      throw new Error(`Expected 401 Unauthorized without token, but got ${unauthPriceCardsRes.status}`);
+    }
+
+    const publicPriceCardsRes = await request(`/api/v1/vendor/price-card/public/${vendorId}`, { token });
+    console.log('With token (Unlocked 200):', publicPriceCardsRes.data);
+    if (!publicPriceCardsRes.data.success) throw new Error('Price card retrieval with token failed');
 
     console.log('\n🎉 ========================================================');
     console.log('🎉 ALL 12 END-TO-END INTEGRATION TESTS PASSED SUCCESSFULLY!');
