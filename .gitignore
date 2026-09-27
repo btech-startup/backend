@@ -20,3 +20,4 @@ Thumbs.db
 # Local database cluster & temporary files
 pgdata/
 *.tmp
+.vscode/

@@ -35,8 +35,14 @@ if (env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
-// Request body parsing
-app.use(express.json());
+// Request body parsing with rawBody capture for cryptographic signature verification
+app.use(
+  express.json({
+    verify: (req: any, _res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 
 // Swagger Interactive API Documentation UI

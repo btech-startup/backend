@@ -1,17 +1,28 @@
 import { Request, Response, NextFunction } from 'express';
 import { BookingService } from '../services/bookingService';
-import { sendSuccess, sendError } from '../utils/apiResponse';
+import { CheckoutService } from '../services/checkoutService';
+import { SlotConflictError } from '../services/redisRedlock';
+import { sendSuccess } from '../utils/apiResponse';
 
 export class BookingController {
   static async checkout(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const clientId = req.user!.id;
-      const result = await BookingService.checkout({
+      const result = await CheckoutService.executeCheckout({
         client_id: clientId,
         ...req.body,
       });
       sendSuccess(res, 'Booking created and advance funded in escrow', result, 201);
-    } catch (error) {
+    } catch (error: any) {
+      if (error instanceof SlotConflictError || error.statusCode === 409) {
+        res.status(409).json({
+          success: false,
+          statusCode: 409,
+          error: 'SlotConflict',
+          message: error.message,
+        });
+        return;
+      }
       next(error);
     }
   }
