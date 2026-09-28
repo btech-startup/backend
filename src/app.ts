@@ -50,7 +50,7 @@ app.use(
   '/docs',
   swaggerUi.serve,
   swaggerUi.setup(swaggerDocument, {
-    customSiteTitle: 'EventWise REST API Docs',
+    customSiteTitle: 'Vortix User-Side Backend API Docs',
     customCss: '.swagger-ui .topbar { background-color: #1a1e24; }',
   })
 );
