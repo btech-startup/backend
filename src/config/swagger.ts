@@ -105,7 +105,141 @@ High-security, rule-based RESTful API designed specifically for the **Vortix Cus
           password: { type: 'string', example: 'SecureUserPassword123!' },
         },
       },
+      SendOTPRequest: {
+        type: 'object',
+        required: ['phone_number'],
+        properties: {
+          phone_number: { type: 'string', example: '+919876543210', description: 'User mobile number (10+ digits)' },
+          purpose: {
+            type: 'string',
+            enum: ['login', 'register', 'general'],
+            example: 'login',
+            description: 'Intended flow for the OTP code (validates registration status)'
+          },
+        },
+      },
+      VerifyOTPRequest: {
+        type: 'object',
+        required: ['phone_number', 'otp'],
+        properties: {
+          phone_number: { type: 'string', example: '+919876543210' },
+          otp: { type: 'string', example: '123456', description: '6-digit OTP code' },
+          purpose: { type: 'string', enum: ['login', 'register', 'general'], example: 'login' },
+        },
+      },
+      LoginOTPRequest: {
+        type: 'object',
+        required: ['phone_number', 'otp'],
+        properties: {
+          phone_number: { type: 'string', example: '+919876543210' },
+          otp: { type: 'string', example: '123456', description: '6-digit OTP received via SMS' },
+        },
+      },
+      RegisterOTPRequest: {
+        type: 'object',
+        required: ['phone_number', 'otp', 'full_name'],
+        properties: {
+          phone_number: { type: 'string', example: '+919876543210' },
+          otp: { type: 'string', example: '123456', description: '6-digit OTP received via SMS' },
+          full_name: { type: 'string', example: 'Pooja Verma' },
+          email: { type: 'string', example: 'pooja.verma@example.com' },
+          password: { type: 'string', example: 'OptionalPassword123!' },
+          role: { type: 'string', enum: ['customer', 'vendor'], example: 'customer' },
+        },
+      },
+      LoginOrRegisterRequest: {
+        type: 'object',
+        required: ['phone_number'],
+        properties: {
+          phone_number: { type: 'string', example: '+919876543210' },
+          password: { type: 'string', example: 'OptionalPassword123!' },
+          full_name: { type: 'string', example: 'Aditi Sharma', description: 'Used if creating a new user' },
+          email: { type: 'string', example: 'aditi@example.com' },
+          role: { type: 'string', enum: ['customer', 'vendor'], example: 'customer' },
+        },
+      },
+      LoginOrRegisterOTPRequest: {
+        type: 'object',
+        required: ['phone_number', 'otp'],
+        properties: {
+          phone_number: { type: 'string', example: '+919876543210' },
+          otp: { type: 'string', example: '123456', description: '6-digit OTP' },
+          full_name: { type: 'string', example: 'Aditi Sharma', description: 'Used if account is new' },
+          email: { type: 'string', example: 'aditi@example.com' },
+          role: { type: 'string', enum: ['customer', 'vendor'], example: 'customer' },
+        },
+      },
+      UpdateProfileRequest: {
+        type: 'object',
+        properties: {
+          full_name: { type: 'string', example: 'Aditi Sharma' },
+          email: { type: 'string', example: 'aditi.updated@example.com' },
+        },
+      },
+      CreateEventTypeRequest: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string', example: 'Cocktail & DJ Night' },
+          code: { type: 'string', example: 'cocktail_night' },
+          description: { type: 'string', example: 'Pre-wedding party with DJ, mocktails and finger food' },
+          suggested_budget_min: { type: 'number', example: 100000 },
+          suggested_budget_max: { type: 'number', example: 500000 },
+          default_guest_count: { type: 'integer', example: 120 },
+          is_active: { type: 'boolean', example: true },
+        },
+      },
+      UpdateEventTypeRequest: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', example: 'Grand Cocktail Night' },
+          code: { type: 'string', example: 'grand_cocktail' },
+          description: { type: 'string', example: 'Updated description' },
+          suggested_budget_min: { type: 'number', example: 150000 },
+          suggested_budget_max: { type: 'number', example: 600000 },
+          default_guest_count: { type: 'integer', example: 150 },
+          is_active: { type: 'boolean', example: true },
+        },
+      },
+      CreateEventRequest: {
+        type: 'object',
+        required: ['title', 'event_date'],
+        properties: {
+          title: { type: 'string', example: "Aarav & Meera's Wedding Muhurtham" },
+          event_type_id: { type: 'string', example: 'evt_type_wedding' },
+          event_type: { type: 'string', example: 'Wedding Ceremony' },
+          event_date: { type: 'string', format: 'date', example: '2026-11-20' },
+          start_time: { type: 'string', example: '08:30 AM' },
+          end_time: { type: 'string', example: '01:30 PM' },
+          venue_name: { type: 'string', example: 'Taj Krishna Grand Ballroom' },
+          venue_address: { type: 'string', example: 'Road No 1, Banjara Hills, Hyderabad' },
+          guest_count: { type: 'integer', example: 450 },
+          estimated_budget: { type: 'number', example: 1500000 },
+          notes: { type: 'string', example: 'Traditional floral decor with Shehnai musicians' },
+        },
+      },
+      UpdateEventRequest: {
+        type: 'object',
+        properties: {
+          title: { type: 'string', example: "Aarav & Meera's Grand Royal Wedding" },
+          event_date: { type: 'string', format: 'date', example: '2026-11-20' },
+          start_time: { type: 'string', example: '08:00 AM' },
+          end_time: { type: 'string', example: '02:00 PM' },
+          venue_name: { type: 'string', example: 'Taj Krishna Grand Ballroom' },
+          guest_count: { type: 'integer', example: 500 },
+          estimated_budget: { type: 'number', example: 1800000 },
+          actual_spent: { type: 'number', example: 450000 },
+          notes: { type: 'string', example: 'Upgraded stage dimensions and added LED screens' },
+          status: {
+            type: 'string',
+            enum: ['planning', 'confirmed', 'in_progress', 'completed', 'cancelled'],
+            example: 'confirmed',
+          },
+        },
+      },
+
       BudgetSplitRequest: {
+
         type: 'object',
         required: ['totalBudget', 'guestCount'],
         properties: {
@@ -250,7 +384,254 @@ High-security, rule-based RESTful API designed specifically for the **Vortix Cus
         },
       },
     },
+    '/auth/otp/send': {
+      post: {
+        tags: ['1. Customer Authentication'],
+        summary: 'Send 6-Digit OTP via SMS',
+        description: 'Generates and dispatches a secure 6-digit OTP code to the provided phone number. Supports purpose validation for login or registration.',
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/SendOTPRequest' } } },
+        },
+        responses: {
+          200: { description: 'OTP dispatched successfully (includes OTP in dev response)', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+          400: { description: 'Phone validation error or registration mismatch', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        },
+      },
+    },
+    '/auth/otp/verify': {
+      post: {
+        tags: ['1. Customer Authentication'],
+        summary: 'Verify OTP Standalone',
+        description: 'Validates a 6-digit OTP code for a phone number before completing multi-step workflows.',
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/VerifyOTPRequest' } } },
+        },
+        responses: {
+          200: { description: 'OTP verified successfully', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+          400: { description: 'Invalid or expired OTP', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        },
+      },
+    },
+    '/auth/otp/login': {
+      post: {
+        tags: ['1. Customer Authentication'],
+        summary: 'Login with Phone & OTP',
+        description: 'Verifies the 6-digit OTP and authenticates the user, returning a JWT bearer token.',
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginOTPRequest' } } },
+        },
+        responses: {
+          200: { description: 'User authenticated successfully via OTP', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+          400: { description: 'Invalid/expired OTP or user not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        },
+      },
+    },
+    '/auth/otp/register': {
+      post: {
+        tags: ['1. Customer Authentication'],
+        summary: 'Register and Verify Account with OTP',
+        description: 'Verifies the 6-digit OTP, registers a new user profile, and immediately issues a JWT bearer token.',
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/RegisterOTPRequest' } } },
+        },
+        responses: {
+          201: { description: 'User profile created and verified with JWT', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+          400: { description: 'Invalid/expired OTP or user already exists', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        },
+      },
+    },
+    '/auth/login-or-register': {
+      post: {
+        tags: ['1. Customer Authentication'],
+        summary: 'Unified Auth: Login if Exists, Register if New',
+        description: 'Checks phone number: if registered, authenticates credentials and logs in; if new, automatically creates account and logs in.',
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginOrRegisterRequest' } } },
+        },
+        responses: {
+          200: { description: 'Existing account logged in successfully', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+          201: { description: 'New account registered and logged in', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+        },
+      },
+    },
+    '/auth/otp/login-or-register': {
+      post: {
+        tags: ['1. Customer Authentication'],
+        summary: 'Unified OTP Auth: Login if Exists, Register if New',
+        description: 'Verifies OTP code: if phone exists, logs in; if new, registers account and returns JWT token.',
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginOrRegisterOTPRequest' } } },
+        },
+        responses: {
+          200: { description: 'Existing account authenticated via OTP', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+          201: { description: 'New account created and verified via OTP', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+          400: { description: 'Invalid or expired OTP', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        },
+      },
+    },
+    '/auth/me': {
+      get: {
+        tags: ['1. Customer Authentication'],
+        summary: 'Get Authenticated User Profile',
+        security: [{ BearerAuth: [] }],
+        description: 'Retrieves current user identity and profile claims using JWT Authorization Middleware.',
+        responses: {
+          200: { description: 'User profile retrieved', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+          401: { description: 'Missing or invalid JWT token', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        },
+      },
+      put: {
+        tags: ['1. Customer Authentication'],
+        summary: 'Update Authenticated User Profile',
+        security: [{ BearerAuth: [] }],
+        description: 'Updates full name or email of currently authenticated user.',
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateProfileRequest' } } },
+        },
+        responses: {
+          200: { description: 'User profile updated successfully', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+          401: { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        },
+      },
+    },
+    '/events/types': {
+      get: {
+        tags: ['Event Types Management'],
+        summary: 'Get All Event Types',
+        description: 'Retrieves active wedding, party, and event categories/types.',
+        parameters: [
+          { name: 'is_active', in: 'query', schema: { type: 'boolean' }, description: 'Filter by active status' },
+        ],
+        responses: {
+          200: { description: 'List of event types', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+        },
+      },
+      post: {
+        tags: ['Event Types Management'],
+        summary: 'Create New Event Type',
+        description: 'Adds a new event type to the platform taxonomy.',
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateEventTypeRequest' } } },
+        },
+        responses: {
+          201: { description: 'Event type created successfully', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+          400: { description: 'Validation error', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        },
+      },
+    },
+    '/events/types/{id}': {
+      get: {
+        tags: ['Event Types Management'],
+        summary: 'Get Event Type by ID',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          200: { description: 'Event type details', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+          404: { description: 'Event type not found' },
+        },
+      },
+      put: {
+        tags: ['Event Types Management'],
+        summary: 'Update Event Type',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateEventTypeRequest' } } },
+        },
+        responses: {
+          200: { description: 'Event type updated successfully' },
+          404: { description: 'Event type not found' },
+        },
+      },
+      delete: {
+        tags: ['Event Types Management'],
+        summary: 'Delete Event Type',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          200: { description: 'Event type deleted successfully' },
+          404: { description: 'Event type not found' },
+        },
+      },
+    },
+    '/events': {
+      get: {
+        tags: ['Events (Customer Operations)'],
+        summary: 'Get User Events',
+        security: [{ BearerAuth: [] }],
+        description: 'Retrieves all events owned by the authenticated customer.',
+        parameters: [
+          { name: 'status', in: 'query', schema: { type: 'string', enum: ['planning', 'confirmed', 'in_progress', 'completed', 'cancelled'] } },
+        ],
+        responses: {
+          200: { description: 'List of customer events', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+          401: { description: 'Unauthorized' },
+        },
+      },
+      post: {
+        tags: ['Events (Customer Operations)'],
+        summary: 'Create New Event',
+        security: [{ BearerAuth: [] }],
+        description: 'Creates a new event under the authenticated user profile.',
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateEventRequest' } } },
+        },
+        responses: {
+          201: { description: 'Event created successfully', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+          400: { description: 'Validation error' },
+          401: { description: 'Unauthorized' },
+        },
+      },
+    },
+    '/events/{id}': {
+      get: {
+        tags: ['Events (Customer Operations)'],
+        summary: 'Get Event Details by ID',
+        security: [{ BearerAuth: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          200: { description: 'Event details', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+          403: { description: 'Forbidden (Not your event)' },
+          404: { description: 'Event not found' },
+        },
+      },
+      put: {
+        tags: ['Events (Customer Operations)'],
+        summary: 'Update Event Details',
+        security: [{ BearerAuth: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateEventRequest' } } },
+        },
+        responses: {
+          200: { description: 'Event updated successfully' },
+          403: { description: 'Forbidden' },
+          404: { description: 'Event not found' },
+        },
+      },
+      delete: {
+        tags: ['Events (Customer Operations)'],
+        summary: 'Delete Event',
+        security: [{ BearerAuth: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          200: { description: 'Event deleted successfully' },
+          403: { description: 'Forbidden' },
+          404: { description: 'Event not found' },
+        },
+      },
+    },
+
     '/customer/budget-split': {
+
       post: {
         tags: ['2. Budget Planner & Vendor Discovery'],
         summary: 'Reverse Wedding Budget Splitter',

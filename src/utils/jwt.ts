@@ -7,6 +7,7 @@ export interface TokenPayload {
   phone_number: string;
   role: UserRole;
   email?: string;
+  full_name?: string;
 }
 
 export const generateToken = (user: IUser): string => {
@@ -15,7 +16,9 @@ export const generateToken = (user: IUser): string => {
     phone_number: user.phone_number,
     role: user.role,
     email: user.email,
+    full_name: user.full_name,
   };
+
 
   return jwt.sign(payload, env.JWT_SECRET, {
     expiresIn: env.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'],

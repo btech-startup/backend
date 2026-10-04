@@ -23,8 +23,10 @@ router.post(
   BookingController.checkout
 );
 
-// Get authenticated customer's bookings
+// Get authenticated customer's bookings (Booking History)
 router.get('/my-bookings', authenticate, BookingController.getMyBookings);
+router.get('/history', authenticate, BookingController.getMyBookings);
+
 
 // Get vendor's received bookings
 router.get(

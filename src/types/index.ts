@@ -364,3 +364,62 @@ export interface IServiceSlotBooking {
   created_at: Date;
 }
 
+// Authentication OTP Types
+export type OTPPurpose = 'login' | 'register' | 'general';
+
+export interface IOTPRecord {
+  id: string;
+  phone_number: string;
+  otp_code: string;
+  purpose: OTPPurpose;
+  expires_at: Date;
+  is_verified: boolean;
+  created_at: Date;
+}
+
+// Event and Event Type Management
+export interface IEventType {
+  id: string;
+  name: string;
+  code: string;
+  description?: string;
+  icon_url?: string;
+  banner_url?: string;
+  suggested_budget_min?: number;
+  suggested_budget_max?: number;
+  default_guest_count?: number;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export type EventStatus = 'planning' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+
+export interface IEvent {
+  id: string;
+  user_id: string;
+  event_type_id?: string;
+  event_type?: string;
+  title: string;
+  description?: string;
+  event_date: string;
+  start_time?: string;
+  end_time?: string;
+  venue_name?: string;
+  venue_address?: string;
+  city?: string;
+  location?: string;
+  venue_latitude?: number;
+  venue_longitude?: number;
+  guest_count?: number;
+  estimated_budget?: number;
+  actual_spent?: number;
+  notes?: string;
+  status: EventStatus;
+  booking_history?: any[];
+  created_at: Date;
+  updated_at: Date;
+}
+
+
+

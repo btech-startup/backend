@@ -12,7 +12,10 @@
     "db:migrate": "ts-node src/scripts/migrate.ts",
     "db:seed": "ts-node src/scripts/seed.ts",
     "test:concurrency": "ts-node src/scripts/concurrencyTesting.ts",
-    "test:user-backend": "ts-node src/scripts/verifyUserBackend.ts"
+    "test:user-backend": "ts-node src/scripts/verifyUserBackend.ts",
+    "test:otp": "tsx src/scripts/testOtpAuth.ts",
+    "test:events": "tsx src/scripts/testJwtAndEventCrud.ts",
+    "test:validation": "tsx src/scripts/testEventValidationAndHistory.ts"
   },
   "keywords": [
     "eventwise",

@@ -20,9 +20,11 @@ import checkoutRoutes from './checkoutRoutes';
 import paymentWebhookRoutes from './paymentWebhookRoutes';
 import escrowMilestonesRoutes from './escrowMilestonesRoutes';
 import otpGeofenceRoutes from './otpGeofenceRoutes';
+import eventRoutes from './eventRoutes';
 import { sendSuccess } from '../utils/apiResponse';
 
 const apiRouter = Router();
+
 
 // Master Health Check endpoint for Customer, Vendor, and Admin clients
 apiRouter.get('/health', (req, res) => {
@@ -57,7 +59,9 @@ apiRouter.use('/bookings', bookingRoutes);
 apiRouter.use('/checkout', checkoutRoutes);
 apiRouter.use('/negotiations', negotiationRoutes);
 apiRouter.use('/events/checkin', checkinRoutes);
+apiRouter.use('/events', eventRoutes);
 apiRouter.use('/checkin', otpGeofenceRoutes);
+
 apiRouter.use('/payments', paymentWebhookRoutes);
 apiRouter.use('/escrow', escrowMilestonesRoutes);
 apiRouter.use('/chat', chatRoutes);
