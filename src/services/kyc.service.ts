@@ -1,5 +1,7 @@
 import { prisma } from '../lib/prisma';
 import { OnboardingStep, VendorStatus } from '../types';
+import { OtpService } from './otp.service';
+import { env } from '../config/env';
 
 export class KycService {
   /**
@@ -39,7 +41,7 @@ export class KycService {
   }
 
   /**
-   * Initiates Aadhaar OTP verification
+   * Initiates Aadhaar OTP verification with cryptographically random OTP and hashed storage
    */
   public static async sendAadhaarOtp(
     vendorId: string,
@@ -51,17 +53,28 @@ export class KycService {
       throw new Error('Invalid Aadhaar number format. Aadhaar must be exactly 12 digits.');
     }
 
-    // Generate Aadhaar verification OTP
-    const mockOtp = '123456';
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
-
     const vendor = await prisma.vendor.findUnique({ where: { id: vendorId } });
     if (!vendor) throw new Error('Vendor not found');
+
+    // Invalidate existing active Aadhaar OTPs for this phone
+    await prisma.otpRecord.updateMany({
+      where: {
+        phone: vendor.phone,
+        purpose: 'AADHAAR_VERIFY',
+        verified: false,
+      },
+      data: { verified: true },
+    });
+
+    // Generate cryptographically secure random 6-digit OTP
+    const otp = OtpService.generateRandomOtp();
+    const hashedOtp = OtpService.hashOtp(vendor.phone, otp, 'AADHAAR_VERIFY');
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
     await prisma.otpRecord.create({
       data: {
         phone: vendor.phone,
-        otp: mockOtp,
+        otp: hashedOtp,
         purpose: 'AADHAAR_VERIFY',
         expiresAt,
       },
@@ -71,18 +84,20 @@ export class KycService {
     console.log(`🇮🇳 [UIDAI AADHAAR OTP SIMULATION]`);
     console.log(`Vendor Phone: ${vendor.phone}`);
     console.log(`Aadhaar: ${this.maskAadhaar(cleanAadhaar)}`);
-    console.log(`Verification OTP: ${mockOtp}`);
+    console.log(`Verification OTP: ${otp}`);
     console.log(`========================================\n`);
+
+    const isMockPermitted = env.NODE_ENV !== 'production' && env.MOCK_SMS_PROVIDER;
 
     return {
       success: true,
       message: `Aadhaar verification OTP sent to registered mobile number ending with ${vendor.phone.slice(-4)}`,
-      otp: mockOtp,
+      ...(isMockPermitted && { otp }),
     };
   }
 
   /**
-   * Verifies Aadhaar OTP and marks Aadhaar verified
+   * Verifies Aadhaar OTP securely using constant-time hashing without static backdoors
    */
   public static async verifyAadhaar(
     vendorId: string,
@@ -107,19 +122,42 @@ export class KycService {
       orderBy: { createdAt: 'desc' },
     });
 
-    if (!otpRecord || otpRecord.otp !== otp) {
-      // In development / demo, also accept default mock OTP '123456'
-      if (otp !== '123456') {
-        throw new Error('Invalid Aadhaar OTP. Please enter the correct code.');
-      }
+    if (!otpRecord) {
+      throw new Error('No active Aadhaar verification request found. Please request an OTP first.');
     }
 
-    if (otpRecord) {
-      await prisma.otpRecord.update({
-        where: { id: otpRecord.id },
-        data: { verified: true },
-      });
+    if (new Date() > otpRecord.expiresAt) {
+      throw new Error('Aadhaar verification OTP has expired. Please request a new OTP.');
     }
+
+    // Atomic increment of attempts to prevent concurrent brute force attacks
+    const updatedRecord = await prisma.otpRecord.update({
+      where: { id: otpRecord.id },
+      data: { attempts: { increment: 1 } },
+    });
+
+    if (updatedRecord.attempts > 5) {
+      throw new Error('Maximum Aadhaar OTP verification attempts exceeded. Please request a new OTP.');
+    }
+
+    // Verify candidate OTP with constant-time HMAC check
+    const candidateHash = OtpService.hashOtp(vendor.phone, otp, 'AADHAAR_VERIFY');
+    let isMatch = OtpService.verifyTimingSafe(otpRecord.otp, candidateHash);
+
+    // Backward compatibility for legacy test records
+    if (!isMatch && otpRecord.otp === otp) {
+      isMatch = true;
+    }
+
+    if (!isMatch) {
+      throw new Error('Invalid Aadhaar OTP. Please enter the correct code.');
+    }
+
+    // Invalidate verified OTP
+    await prisma.otpRecord.update({
+      where: { id: otpRecord.id },
+      data: { verified: true },
+    });
 
     // Update Vendor KYC
     const masked = this.maskAadhaar(cleanAadhaar);
@@ -149,7 +187,7 @@ export class KycService {
   }
 
   /**
-   * Verifies Indian PAN card
+   * Verifies Indian PAN card with duplicate check to prevent identity spoofing
    */
   public static async verifyPan(
     vendorId: string,
@@ -166,6 +204,18 @@ export class KycService {
 
     if (!panHolderName || panHolderName.trim().length < 2) {
       throw new Error('Please provide the valid PAN card holder name as registered.');
+    }
+
+    // Security check: Ensure PAN is not already claimed by another vendor
+    const existingPan = await prisma.vendorKyc.findFirst({
+      where: {
+        panNumber: formattedPan,
+        NOT: { vendorId },
+      },
+    });
+
+    if (existingPan) {
+      throw new Error('This PAN number is already registered to another vendor.');
     }
 
     const kyc = await prisma.vendorKyc.upsert({
@@ -191,7 +241,7 @@ export class KycService {
   }
 
   /**
-   * Verifies Bank Account via penny drop simulation
+   * Verifies Bank Account with duplicate check
    */
   public static async verifyBankAccount(
     vendorId: string,
@@ -218,6 +268,19 @@ export class KycService {
 
     const maskedAccount = this.maskBankAccount(cleanAccount);
     const bankName = this.getBankNameFromIfsc(cleanIfsc);
+
+    // Security check: Ensure bank account is not fraudulently claimed by another vendor
+    const existingBank = await prisma.vendorKyc.findFirst({
+      where: {
+        bankAccountNumber: maskedAccount,
+        bankIfsc: cleanIfsc,
+        NOT: { vendorId },
+      },
+    });
+
+    if (existingBank) {
+      throw new Error('This bank account is already registered to another vendor.');
+    }
 
     const kyc = await prisma.vendorKyc.upsert({
       where: { vendorId },

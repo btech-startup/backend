@@ -4,23 +4,45 @@ import swaggerUi from 'swagger-ui-express';
 import apiRoutes from './routes';
 import { errorHandler } from './middlewares/error.middleware';
 import { swaggerSpec } from './docs/swagger';
+import { securityHeaders, sanitizeRequestBody } from './middlewares/security.middleware';
+import { env } from './config/env';
 
 const app: Application = express();
 
-// Global Middlewares
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Security HTTP Headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options)
+app.use(securityHeaders);
 
-// Swagger Documentation Route
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// CORS Policy configuration
+app.use(
+  cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-deal-token'],
+  })
+);
+
+// Payload size limits to mitigate Denial of Service (DoS) memory exhaustion
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
+
+// Input sanitization against Stored XSS
+app.use(sanitizeRequestBody);
+
+// Swagger Documentation Route (Restricted in production for security reconnaissance prevention)
+if (env.NODE_ENV !== 'production') {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+} else {
+  app.use('/api-docs', (req: Request, res: Response) => {
+    res.status(404).json({ success: false, message: 'API documentation is disabled in production.' });
+  });
+}
 
 // Base Landing Route
 app.get('/', (req: Request, res: Response) => {
   res.json({
     name: 'Event Management Vendor Backend API',
     version: '1.0.0',
-    documentation: '/api-docs',
+    documentation: env.NODE_ENV !== 'production' ? '/api-docs' : 'Disabled in production',
     healthCheck: '/api/v1/health',
     endpoints: {
       auth: '/api/v1/auth',
@@ -33,7 +55,7 @@ app.get('/', (req: Request, res: Response) => {
       verifyDate: '/api/v1/user/vendors/:vendorId/calendar/verify-date',
       vendorCalendar: '/api/v1/vendor/calendar',
       chatbotDeals: '/api/v1/user/deals/chatbot',
-      sampleVendors: '/api/v1/user/sample-vendors',
+      sampleVendors: env.NODE_ENV !== 'production' ? '/api/v1/user/sample-vendors' : undefined,
     },
   });
 });

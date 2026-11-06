@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 import { prisma } from '../lib/prisma';
-import { JwtPayload } from '../types';
+import { JwtPayload, VendorStatus } from '../types';
 
 export interface AuthenticatedRequest extends Request {
   vendorId?: string;
@@ -36,6 +36,15 @@ export const authenticateVendor = async (
       res.status(401).json({
         success: false,
         message: 'Vendor not found or session expired',
+      });
+      return;
+    }
+
+    // Enforce account status check: block suspended or rejected vendors
+    if (vendor.status === VendorStatus.SUSPENDED || vendor.status === VendorStatus.REJECTED) {
+      res.status(403).json({
+        success: false,
+        message: `Account is ${vendor.status.toLowerCase()}. Access denied.`,
       });
       return;
     }

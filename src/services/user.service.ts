@@ -1,6 +1,8 @@
+import jwt from 'jsonwebtoken';
 import { prisma } from '../lib/prisma';
 import { VendorStatus } from '../types';
 import { CalendarService } from './calendar.service';
+import { env } from '../config/env';
 
 export interface GetVendorsFilterDto {
   category?: string;
@@ -29,6 +31,7 @@ export interface NegotiateDealDto {
   dealId: string;
   userMessage: string;
   counterOffer?: number;
+  dealToken?: string;
 }
 
 export class UserService {
@@ -378,8 +381,16 @@ export class UserService {
       await CalendarService.syncDealToCalendar(deal.id);
     }
 
+    // Generate secure capability token for client deal session
+    const dealAccessToken = jwt.sign(
+      { dealId: deal.id, role: 'DEAL_CLIENT', clientPhone: dto.clientPhone },
+      env.JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
     return {
       dealId: deal.id,
+      dealAccessToken,
       vendor: {
         id: vendor.id,
         businessName: vendor.businessName,
@@ -430,6 +441,12 @@ export class UserService {
 
     const basePrice = deal.originalPrice;
     const counterOffer = dto.counterOffer;
+
+    if (counterOffer !== undefined) {
+      if (!Number.isFinite(counterOffer) || counterOffer <= 0 || counterOffer > 100000000) {
+        throw new Error('Invalid counter offer: must be a positive finite amount under 100,000,000');
+      }
+    }
 
     if (counterOffer && counterOffer > 0) {
       const discount = ((basePrice - counterOffer) / basePrice) * 100;
@@ -512,7 +529,7 @@ export class UserService {
   /**
    * Get Deal Details with chat history and banking payment instructions
    */
-  public static async getDeal(dealId: string) {
+  public static async getDeal(dealId: string, dealToken?: string) {
     const deal = await prisma.deal.findUnique({
       where: { id: dealId },
       include: {
@@ -573,6 +590,10 @@ export class UserService {
    * Return list of curated sample vendors with ready-to-test credentials, IDs, and payloads
    */
   public static async getSampleVendors() {
+    if (env.NODE_ENV === 'production') {
+      throw new Error('Sample vendors endpoint is disabled in production environments for security.');
+    }
+
     const vendors = await prisma.vendor.findMany({
       include: {
         kyc: true,

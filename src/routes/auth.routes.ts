@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AuthController, sendOtpSchema, verifyOtpSchema } from '../controllers/auth.controller';
 import { validateRequest } from '../middlewares/validate.middleware';
+import { authRateLimiter } from '../middlewares/security.middleware';
 
 const router = Router();
 
@@ -36,7 +37,7 @@ const router = Router();
  *       200:
  *         description: OTP sent successfully
  */
-router.post('/send-otp', validateRequest(sendOtpSchema), AuthController.sendOtp);
+router.post('/send-otp', authRateLimiter, validateRequest(sendOtpSchema), AuthController.sendOtp);
 
 /**
  * @swagger
@@ -65,6 +66,6 @@ router.post('/send-otp', validateRequest(sendOtpSchema), AuthController.sendOtp)
  *       200:
  *         description: Login or registration successful
  */
-router.post('/verify-otp', validateRequest(verifyOtpSchema), AuthController.verifyOtp);
+router.post('/verify-otp', authRateLimiter, validateRequest(verifyOtpSchema), AuthController.verifyOtp);
 
 export default router;

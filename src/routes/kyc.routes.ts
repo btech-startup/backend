@@ -8,6 +8,7 @@ import {
 } from '../controllers/kyc.controller';
 import { authenticateVendor } from '../middlewares/auth.middleware';
 import { validateRequest } from '../middlewares/validate.middleware';
+import { authRateLimiter } from '../middlewares/security.middleware';
 
 const router = Router();
 
@@ -40,6 +41,7 @@ router.use(authenticateVendor);
  */
 router.post(
   '/aadhaar/send-otp',
+  authRateLimiter,
   validateRequest(sendAadhaarOtpSchema),
   KycController.sendAadhaarOtp
 );

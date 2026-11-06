@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { z } from 'zod';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 import { KycService } from '../services/kyc.service';
+import { env } from '../config/env';
 
 export const sendAadhaarOtpSchema = z.object({
   aadhaarNumber: z
@@ -57,7 +58,7 @@ export class KycController {
         message: result.message,
         data: {
           maskedAadhaar: KycService.maskAadhaar(aadhaarNumber),
-          devOtp: result.otp,
+          ...(result.otp && env.NODE_ENV !== 'production' && { devOtp: result.otp }),
         },
       });
     } catch (error: any) {

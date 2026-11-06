@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { OtpService } from '../services/otp.service';
+import { env } from '../config/env';
 
 export const sendOtpSchema = z.object({
   phone: z
@@ -20,12 +21,14 @@ export class AuthController {
     try {
       const { phone } = req.body;
       const result = await OtpService.sendOtp(phone);
+
       res.status(200).json({
         success: true,
         message: result.message,
         data: {
           phone,
-          ...(result.otp && { devOtp: result.otp }),
+          // devOtp is strictly omitted in production environments
+          ...(result.otp && env.NODE_ENV !== 'production' && { devOtp: result.otp }),
         },
       });
     } catch (error: any) {

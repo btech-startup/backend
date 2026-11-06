@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { env } from '../config/env';
 
 export const errorHandler = (
   err: any,
@@ -9,11 +10,16 @@ export const errorHandler = (
   console.error('🔥 Global Error Handler:', err);
 
   const statusCode = err.statusCode || err.status || 500;
-  const message = err.message || 'Internal Server Error';
+  let message = err.message || 'Internal Server Error';
+
+  // In production, mask internal server / database errors
+  if (env.NODE_ENV === 'production' && statusCode === 500) {
+    message = 'An unexpected server error occurred. Please try again later.';
+  }
 
   res.status(statusCode).json({
     success: false,
     message,
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    ...(env.NODE_ENV !== 'production' && { stack: err.stack }),
   });
 };

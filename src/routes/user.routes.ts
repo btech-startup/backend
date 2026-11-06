@@ -7,6 +7,7 @@ import {
 import { CalendarController } from '../controllers/calendar.controller';
 import { authenticateVendor, authorizeVendorOwnership } from '../middlewares/auth.middleware';
 import { validateRequest } from '../middlewares/validate.middleware';
+import { dealRateLimiter } from '../middlewares/security.middleware';
 
 const router = Router();
 
@@ -240,6 +241,7 @@ router.get(
  */
 router.post(
   '/deals/chatbot',
+  dealRateLimiter,
   validateRequest(createChatbotDealSchema),
   UserController.startChatbotDeal
 );
@@ -277,6 +279,7 @@ router.post(
  */
 router.post(
   '/deals/:dealId/negotiate',
+  dealRateLimiter,
   validateRequest(negotiateDealSchema),
   UserController.negotiateDeal
 );
@@ -298,6 +301,6 @@ router.post(
  *       200:
  *         description: Deal details, agreed terms, and payment settlement instructions
  */
-router.get('/deals/:dealId', UserController.getDeal);
+router.get('/deals/:dealId', dealRateLimiter, UserController.getDeal);
 
 export default router;
